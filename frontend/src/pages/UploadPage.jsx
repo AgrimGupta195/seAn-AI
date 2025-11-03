@@ -7,7 +7,10 @@ export default function UploadPage() {
   const [youtubeUrls, setYoutubeUrls] = useState(['']);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [selectedVideos, setSelectedVideos] = useState([]);
-  const[loadingVideo, setLoadingVideo] = useState(false);
+  const [loadingVideo, setLoadingVideo] = useState(false);
+
+  // Subtitle files with video links
+  const [subtitleFiles, setSubtitleFiles] = useState([]);
 
   const addYoutubeUrlField = () => {
     setYoutubeUrls([...youtubeUrls, '']);
@@ -33,6 +36,45 @@ export default function UploadPage() {
     setSelectedVideos([...selectedVideos, ...files]);
   };
 
+  // Subtitle handlers
+  const handleSubtitleUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const newSubtitles = files.map(file => ({
+      file,
+      videoLink: ''
+    }));
+    setSubtitleFiles([...subtitleFiles, ...newSubtitles]);
+  };
+
+  const addSubtitleField = () => {
+    setSubtitleFiles([...subtitleFiles, {
+      file: null,
+      videoLink: ''
+    }]);
+  };
+
+  const updateSubtitleFile = (index, file) => {
+    const updated = [...subtitleFiles];
+    updated[index].file = file;
+    setSubtitleFiles(updated);
+  };
+
+  const updateSubtitleVideoLink = (index, value) => {
+    const updated = [...subtitleFiles];
+    updated[index].videoLink = value;
+    setSubtitleFiles(updated);
+  };
+
+  const removeSubtitleField = (index) => {
+    setSubtitleFiles(subtitleFiles.filter((_, i) => i !== index));
+  };
+
+  const handleSubtitleSubmit = async () => {
+    console.log('Subtitle files with video links:', subtitleFiles);
+    // Add your API call here
+    setSubtitleFiles([]);
+  };
+
   const removeFile = (index, type) => {
     if (type === 'file') {
       setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
@@ -56,33 +98,33 @@ export default function UploadPage() {
     setLoadingVideo(true);
     try {
       const formData = new FormData();
-    selectedVideos.forEach((video) => {
-      formData.append("videos", video);
-    });
+      selectedVideos.forEach((video) => {
+        formData.append("videos", video);
+      });
 
-    const response = await axiosInstance.post('/uploadFile/videoUpload', formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+      const response = await axiosInstance.post('/uploadFile/videoUpload', formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
     } catch (error) {
       alert(error.response.data.message);
-    }finally{
+    } finally {
       setSelectedVideos([]);
       setLoadingVideo(false);
     }
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-black absolute fixed pt-10 ">
+    <div className="w-full h-full flex flex-col bg-black absolute fixed pt-10">
       <div className="flex flex-col items-center py-6 px-4">
         <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Upload Content</h1>
         <p className="text-lg sm:text-xl font-semibold text-gray-500">Choose your upload method</p>
       </div>
-      <div className="flex border-b border-gray-800 px-4">
+      <div className="flex border-b border-gray-800 px-4 overflow-x-auto">
         <button
           onClick={() => setActiveTab('youtube')}
-          className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all whitespace-nowrap ${
             activeTab === 'youtube'
               ? 'border-b-2 border-white text-white -mb-px'
               : 'text-gray-600 hover:text-gray-400'
@@ -93,7 +135,7 @@ export default function UploadPage() {
         </button>
         <button
           onClick={() => setActiveTab('files')}
-          className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all whitespace-nowrap ${
             activeTab === 'files'
               ? 'border-b-2 border-white text-white -mb-px'
               : 'text-gray-600 hover:text-gray-400'
@@ -104,7 +146,7 @@ export default function UploadPage() {
         </button>
         <button
           onClick={() => setActiveTab('videos')}
-          className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all whitespace-nowrap ${
             activeTab === 'videos'
               ? 'border-b-2 border-white text-white -mb-px'
               : 'text-gray-600 hover:text-gray-400'
@@ -112,6 +154,17 @@ export default function UploadPage() {
         >
           <Video size={20} />
           <span className="hidden sm:inline">Videos</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('subtitles')}
+          className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all whitespace-nowrap ${
+            activeTab === 'subtitles'
+              ? 'border-b-2 border-white text-white -mb-px'
+              : 'text-gray-600 hover:text-gray-400'
+          }`}
+        >
+          <FileText size={20} />
+          <span className="hidden sm:inline">Subtitles</span>
         </button>
       </div>
       <div className="flex-1 overflow-y-auto p-4 sm:p-6">
@@ -152,12 +205,13 @@ export default function UploadPage() {
               <button
                 onClick={handleYoutubeSubmit}
                 disabled={youtubeUrls.every(url => !url.trim())}
-                className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl cursor-pointer"
+                className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Process YouTube Videos
               </button>
             </div>
           )}
+
           {activeTab === 'files' && (
             <div className="space-y-4">
               <div className="border-2 border-dashed border-gray-800 rounded-lg p-8 sm:p-12 text-center hover:border-gray-700 transition-all cursor-pointer bg-gray-950">
@@ -212,6 +266,7 @@ export default function UploadPage() {
               )}
             </div>
           )}
+
           {activeTab === 'videos' && (
             <div className="space-y-4">
               <div className="border-2 border-dashed border-gray-800 rounded-lg p-8 sm:p-12 text-center hover:border-gray-700 transition-all cursor-pointer bg-gray-950">
@@ -257,13 +312,87 @@ export default function UploadPage() {
                     ))}
                   </div>
                   <button
-                  disabled={loadingVideo}
+                    disabled={loadingVideo}
                     onClick={handleVideoSubmit}
-                    className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl"
+                    className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loadingVideo ? 'Uploading...' : `Upload ${selectedVideos.length} Video${selectedVideos.length !== 1 ? 's' : ''}`}
                   </button>
                 </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'subtitles' && (
+            <div className="space-y-4">
+              <label className="text-sm font-semibold text-gray-400 mb-2 block">
+                Upload Subtitle Files with Video Links
+              </label>
+              
+              <div className="space-y-4 mb-4">
+                {subtitleFiles.map((item, index) => (
+                  <div
+                    key={index}
+                    className="bg-gray-950 border border-gray-800 rounded-lg p-4 space-y-3"
+                  >
+                    {/* Subtitle File Upload */}
+                    <div className="flex gap-2">
+                      <input
+                        type="file"
+                        id={`subtitle-file-${index}`}
+                        accept=".vtt,.srt"
+                        onChange={(e) => updateSubtitleFile(index, e.target.files[0])}
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor={`subtitle-file-${index}`}
+                        className="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-sm cursor-pointer hover:bg-gray-800 transition-all flex items-center gap-2"
+                      >
+                        <FileText size={16} className="text-gray-500 flex-shrink-0" />
+                        {item.file ? (
+                          <span className="text-white truncate">{item.file.name}</span>
+                        ) : (
+                          <span className="text-gray-400">Click to upload VTT/SRT file</span>
+                        )}
+                      </label>
+                      {subtitleFiles.length > 1 && (
+                        <button
+                          onClick={() => removeSubtitleField(index)}
+                          className="bg-gray-900 border border-gray-800 text-red-500 px-4 rounded-lg hover:bg-gray-800 hover:border-red-500 transition-all"
+                        >
+                          <X size={20} />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Video Link Input */}
+                    <input
+                      type="url"
+                      value={item.videoLink}
+                      onChange={(e) => updateSubtitleVideoLink(index, e.target.value)}
+                      placeholder="Enter video link (YouTube, Vimeo, etc.)"
+                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-700"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={addSubtitleField}
+                className="w-full border border-gray-800 bg-gray-900 text-white font-semibold py-3 rounded-lg hover:bg-gray-800 hover:border-gray-700 transition-all flex items-center justify-center gap-2"
+              >
+                <Plus size={20} />
+                Add Another Subtitle File
+              </button>
+
+              {subtitleFiles.length > 0 && (
+                <button
+                  onClick={handleSubtitleSubmit}
+                  disabled={subtitleFiles.some(item => !item.file || !item.videoLink.trim())}
+                  className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Upload {subtitleFiles.length} Subtitle{subtitleFiles.length !== 1 ? 's' : ''} with Video Link{subtitleFiles.length !== 1 ? 's' : ''}
+                </button>
               )}
             </div>
           )}

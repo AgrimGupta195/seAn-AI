@@ -109,22 +109,26 @@ async function storeVectorsInPinecone(vectors,id) {
 }
 
 // ------------------ Controller ------------------
-export const uploadFiles = (req, res) => {
+export const uploadFilesSRTVTT = (req, res) => {
+
   upload(req, res, async (err) => {
     if (err)
       return res.status(500).json({ message: "Upload error", error: err.message });
     if (!req.files || req.files.length === 0)
       return res.status(400).json({ message: "No files uploaded" });
-
+    if(!req.links || req.links.length===0)
+         return res.status(400).json({ message: "No Links uploaded" });
     try {
       const allVectors = [];
 
-      for (const file of req.files) {
+      for (const i =0; i< req.files.length; i++) {
+        const file = req.files[i];
+        const link = req.links[i];
         console.log(`📄 Processing ${file.originalname}`);
 
         // 1️⃣ Extract text
         const text = await extractText(file.path);
-        const chunks = chunkText(text);
+        const chunks = chunkText(text+`\n Source Link: ${link}`);
 
         // 2️⃣ Upload to S3
         const s3Url = await uploadFileToS3(file.path, file.filename);
