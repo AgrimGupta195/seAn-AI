@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import axiosInstance from '../lib/axios';
+import { useAuth } from '../context/AuthContext';
+
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -10,59 +12,83 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = async() => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true);
-    if(password !== confirmPassword) {
-    alert('Passwords do not match');
-    setLoading(false);
-    return;
-  }
+    setError('');
+    
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const{data}=await axiosInstance.post('/user/signup', { fullName, email, password });
-      alert('Signup successful');
-      console.log(data);
+      const { data } = await axiosInstance.post('/user/signup', { fullName, email, password });
+      login(data);
+      navigate('/dashboard');
     } catch (error) {
-      alert('Signup failed');
-    }finally{
+      setError(error?.response?.data?.message || 'Signup failed. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl w-full max-w-md border-2 border-gray-900">
-      <div className="flex flex-col items-center mb-4 sm:mb-6">
-        <h1 className="text-3xl sm:text-4xl font-bold text-black mb-1">Create Account</h1>
-        <p className="text-xl sm:text-2xl font-semibold text-gray-800">Join seAn AI</p>
+    <div className="min-h-[calc(100vh-6rem)] w-full flex items-center justify-center px-4 py-12">
+      <div className="bg-slate-900/80 p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-md border border-slate-800 backdrop-blur">
+      <div className="flex flex-col items-center mb-6">
+        <div className="bg-linear-to-r from-indigo-500 to-purple-500 p-3 rounded-2xl mb-4 shadow-lg shadow-indigo-900/40">
+          <h1 className="text-3xl sm:text-4xl font-bold text-white">Create Account</h1>
+        </div>
+        <p className="text-xl sm:text-2xl font-semibold text-slate-300/90">Join SeAn AI</p>
       </div>
 
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-gray-700">Full Name</label>
+      {error && (
+        <div className="mb-4 p-4 bg-red-900/70 border border-red-500/80 text-red-200 rounded-xl text-sm">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-semibold text-slate-300">Full Name</label>
           <input
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             disabled={loading}
             placeholder="Enter your name"
-            className="border-2 border-gray-900 rounded-lg px-4 py-2.5 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent transition-all"
+            required
+            className="bg-slate-900/70 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/60 focus:border-indigo-500/60 transition-all"
           />
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-gray-700">Email</label>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-semibold text-slate-300">Email</label>
           <input
             type="email"
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
-            className="border-2 border-gray-900 rounded-lg px-4 py-2.5 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent transition-all"
+            required
+            className="bg-slate-900/70 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/60 focus:border-indigo-500/60 transition-all"
           />
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-gray-700">Password</label>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-semibold text-slate-300">Password</label>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
@@ -70,20 +96,22 @@ export default function SignupPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
-              className="border-2 border-gray-900 rounded-lg px-4 py-2.5 pr-12 w-full text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent transition-all"
+              required
+              minLength={6}
+              className="bg-slate-900/70 border border-slate-700 rounded-xl px-4 py-2.5 pr-12 w-full text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/60 focus:border-indigo-500/60 transition-all"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-black transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
             >
               {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
             </button>
           </div>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-gray-700">Confirm Password</label>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-semibold text-slate-300">Confirm Password</label>
           <div className="relative">
             <input
               type={showConfirmPassword ? "text" : "password"}
@@ -91,12 +119,13 @@ export default function SignupPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={loading}
-              className="border-2 border-gray-900 rounded-lg px-4 py-2.5 pr-12 w-full text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent transition-all"
+              required
+              className="bg-slate-900/70 border border-slate-700 rounded-xl px-4 py-2.5 pr-12 w-full text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/60 focus:border-indigo-500/60 transition-all"
             />
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-black transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
             >
               {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
             </button>
@@ -104,23 +133,24 @@ export default function SignupPage() {
         </div>
 
         <button
-          onClick={handleSubmit}
+          type="submit"
           disabled={loading}
-          className="bg-black text-white font-semibold py-2.5 rounded-lg hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl mt-2 text-sm sm:text-base"
+          className="bg-linear-to-r from-indigo-500 to-purple-500 text-white font-semibold py-3 rounded-xl hover:from-indigo-400 hover:to-purple-400 transition-all shadow-lg shadow-indigo-900/40 hover:shadow-indigo-800/70 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Creating account...' : 'Create Account'}
         </button>
-      </div>
+      </form>
 
-      <div className="mt-4 text-center">
-        <p className="text-gray-600 text-sm sm:text-base">
+      <div className="mt-6 text-center">
+        <p className="text-slate-400 text-sm">
           Already have an account?{' '}
           <Link to="/login">
-            <span className="text-black font-semibold underline cursor-pointer">
+            <span className="text-indigo-300 font-semibold hover:text-indigo-200 underline cursor-pointer transition-colors">
               Sign In
             </span>
           </Link>
         </p>
+      </div>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link2, FileText, Video, Upload, X, Plus } from 'lucide-react';
+import { Link2, FileText, Video, Upload, X, Plus, CheckCircle, AlertCircle } from 'lucide-react';
 import axiosInstance from '../lib/axios';
 
 export default function UploadPage() {
@@ -8,9 +8,21 @@ export default function UploadPage() {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [selectedVideos, setSelectedVideos] = useState([]);
   const [loadingVideo, setLoadingVideo] = useState(false);
-
-  // Subtitle files with video links
+  const [loadingFiles, setLoadingFiles] = useState(false);
+  const [loadingSubtitles, setLoadingSubtitles] = useState(false);
   const [subtitleFiles, setSubtitleFiles] = useState([]);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const showSuccess = (message) => {
+    setSuccessMessage(message);
+    setTimeout(() => setSuccessMessage(''), 5000);
+  };
+
+  const showError = (message) => {
+    setErrorMessage(message);
+    setTimeout(() => setErrorMessage(''), 5000);
+  };
 
   const addYoutubeUrlField = () => {
     setYoutubeUrls([...youtubeUrls, '']);
@@ -36,7 +48,6 @@ export default function UploadPage() {
     setSelectedVideos([...selectedVideos, ...files]);
   };
 
-  // Subtitle handlers
   const handleSubtitleUpload = (e) => {
     const files = Array.from(e.target.files);
     const newSubtitles = files.map(file => ({
@@ -69,10 +80,53 @@ export default function UploadPage() {
     setSubtitleFiles(subtitleFiles.filter((_, i) => i !== index));
   };
 
+  const handleFileSubmit = async () => {
+    if (selectedFiles.length === 0) return;
+    setLoadingFiles(true);
+    setErrorMessage('');
+    try {
+      const formData = new FormData();
+      selectedFiles.forEach((f) => formData.append('files', f));
+      const res = await axiosInstance.post('/uploadFile/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      showSuccess(res.data.message || `✅ ${selectedFiles.length} file(s) uploaded and processed successfully!`);
+      setSelectedFiles([]);
+    } catch (error) {
+      showError(error?.response?.data?.message || 'Upload failed. Please try again.');
+    } finally {
+      setLoadingFiles(false);
+    }
+  };
+
   const handleSubtitleSubmit = async () => {
-    console.log('Subtitle files with video links:', subtitleFiles);
-    // Add your API call here
-    setSubtitleFiles([]);
+    if (subtitleFiles.length === 0) return;
+    const validFiles = subtitleFiles.filter(item => item.file && item.videoLink.trim());
+    
+    if (validFiles.length === 0) {
+      showError('Please provide both subtitle files and video links');
+      return;
+    }
+    
+    setLoadingSubtitles(true);
+    setErrorMessage('');
+    try {
+      const formData = new FormData();
+      validFiles.forEach(({ file, videoLink }) => {
+        formData.append('files', file);
+        formData.append('links', videoLink);
+      });
+
+      const res = await axiosInstance.post('/uploadFile/vttsrtUpload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      showSuccess(res.data.message || `✅ ${validFiles.length} subtitle file(s) uploaded and processed successfully!`);
+      setSubtitleFiles([]);
+    } catch (error) {
+      showError(error?.response?.data?.message || 'Upload failed. Please try again.');
+    } finally {
+      setLoadingSubtitles(false);
+    }
   };
 
   const removeFile = (index, type) => {
@@ -83,19 +137,38 @@ export default function UploadPage() {
     }
   };
 
-  const handleYoutubeSubmit = () => {
+  const handleYoutubeSubmit = async () => {
     const validUrls = youtubeUrls.filter(url => url.trim() !== '');
-    console.log('YouTube URLs:', validUrls);
-    setYoutubeUrls(['']);
-  };
+    if (validUrls.length === 0) {
+      showError('Please enter at least one YouTube URL');
+      return;
+    }
 
-  const handleFileSubmit = () => {
-    console.log('Files:', selectedFiles);
-    setSelectedFiles([]);
+    setLoadingVideo(true);
+    setErrorMessage('');
+    
+    try {
+      const results = [];
+      for (const url of validUrls) {
+        const response = await axiosInstance.post('/uploadFile/youtube', {
+          video_url: url
+        });
+        results.push(response.data);
+      }
+      
+      showSuccess(`✅ ${results.length} YouTube video(s) processed successfully!`);
+      setYoutubeUrls(['']);
+    } catch (error) {
+      showError(error?.response?.data?.message || 'Failed to process YouTube video(s)');
+    } finally {
+      setLoadingVideo(false);
+    }
   };
 
   const handleVideoSubmit = async() => {
+    if (selectedVideos.length === 0) return;
     setLoadingVideo(true);
+    setErrorMessage('');
     try {
       const formData = new FormData();
       selectedVideos.forEach((video) => {
@@ -107,27 +180,54 @@ export default function UploadPage() {
           "Content-Type": "multipart/form-data",
         },
       });
-    } catch (error) {
-      alert(error.response.data.message);
-    } finally {
+      showSuccess(response.data.message || `✅ ${selectedVideos.length} video(s) uploaded, transcribed, and processed successfully!`);
       setSelectedVideos([]);
+    } catch (error) {
+      showError(error?.response?.data?.message || 'Upload failed. Please try again.');
+    } finally {
       setLoadingVideo(false);
     }
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-black absolute fixed pt-10">
-      <div className="flex flex-col items-center py-6 px-4">
-        <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Upload Content</h1>
-        <p className="text-lg sm:text-xl font-semibold text-gray-500">Choose your upload method</p>
+    <div className="w-full min-h-screen flex flex-col bg-transparent pt-20 text-slate-200">
+      {(successMessage || errorMessage) && (
+        <div className="fixed top-24 right-4 z-50 max-w-md">
+          {successMessage && (
+            <div className="bg-emerald-600/90 border border-emerald-500/80 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 mb-2 animate-slide-in">
+              <CheckCircle size={24} />
+              <p className="flex-1">{successMessage}</p>
+              <button onClick={() => setSuccessMessage('')} className="hover:text-green-200">
+                <X size={20} />
+              </button>
+            </div>
+          )}
+          {errorMessage && (
+            <div className="bg-red-600/90 border border-red-500/80 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
+              <AlertCircle size={24} />
+              <p className="flex-1">{errorMessage}</p>
+              <button onClick={() => setErrorMessage('')} className="hover:text-red-200">
+                <X size={20} />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="flex flex-col items-center py-8 px-4">
+        <h1 className="text-4xl sm:text-5xl font-bold bg-linear-to-r from-indigo-400 via-blue-400 to-purple-500 bg-clip-text text-transparent mb-3">
+          Upload Content
+        </h1>
+        <p className="text-lg sm:text-xl text-slate-400">Choose your upload method</p>
       </div>
-      <div className="flex border-b border-gray-800 px-4 overflow-x-auto">
+
+      <div className="flex border-b border-slate-800 px-4 overflow-x-auto">
         <button
           onClick={() => setActiveTab('youtube')}
           className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all whitespace-nowrap ${
             activeTab === 'youtube'
-              ? 'border-b-2 border-white text-white -mb-px'
-              : 'text-gray-600 hover:text-gray-400'
+              ? 'border-b-2 border-indigo-500 text-indigo-400 -mb-px'
+              : 'text-slate-500 hover:text-slate-300'
           }`}
         >
           <Link2 size={20} />
@@ -137,8 +237,8 @@ export default function UploadPage() {
           onClick={() => setActiveTab('files')}
           className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all whitespace-nowrap ${
             activeTab === 'files'
-              ? 'border-b-2 border-white text-white -mb-px'
-              : 'text-gray-600 hover:text-gray-400'
+              ? 'border-b-2 border-indigo-500 text-indigo-400 -mb-px'
+              : 'text-slate-500 hover:text-slate-300'
           }`}
         >
           <FileText size={20} />
@@ -148,8 +248,8 @@ export default function UploadPage() {
           onClick={() => setActiveTab('videos')}
           className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all whitespace-nowrap ${
             activeTab === 'videos'
-              ? 'border-b-2 border-white text-white -mb-px'
-              : 'text-gray-600 hover:text-gray-400'
+              ? 'border-b-2 border-indigo-500 text-indigo-400 -mb-px'
+              : 'text-slate-500 hover:text-slate-300'
           }`}
         >
           <Video size={20} />
@@ -159,14 +259,15 @@ export default function UploadPage() {
           onClick={() => setActiveTab('subtitles')}
           className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all whitespace-nowrap ${
             activeTab === 'subtitles'
-              ? 'border-b-2 border-white text-white -mb-px'
-              : 'text-gray-600 hover:text-gray-400'
+              ? 'border-b-2 border-indigo-500 text-indigo-400 -mb-px'
+              : 'text-slate-500 hover:text-slate-300'
           }`}
         >
           <FileText size={20} />
           <span className="hidden sm:inline">Subtitles</span>
         </button>
       </div>
+
       <div className="flex-1 overflow-y-auto p-4 sm:p-6">
         <div className="max-w-4xl mx-auto">
           {activeTab === 'youtube' && (
@@ -182,12 +283,12 @@ export default function UploadPage() {
                       value={url}
                       onChange={(e) => updateYoutubeUrl(index, e.target.value)}
                       placeholder="https://www.youtube.com/watch?v=..."
-                      className="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:border-gray-700 transition-all"
+                      className="flex-1 bg-gray-900/50 border border-gray-700 rounded-xl px-4 py-3 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                     {youtubeUrls.length > 1 && (
                       <button
                         onClick={() => removeYoutubeUrl(index)}
-                        className="bg-gray-900 border border-gray-800 text-red-500 px-4 rounded-lg hover:bg-gray-800 hover:border-red-500 transition-all"
+                        className="bg-gray-900 border border-gray-700 text-red-400 px-4 rounded-xl hover:bg-gray-800 hover:border-red-500 transition-all"
                       >
                         <X size={20} />
                       </button>
@@ -197,7 +298,7 @@ export default function UploadPage() {
               </div>
               <button
                 onClick={addYoutubeUrlField}
-                className="w-full border border-gray-800 bg-gray-900 text-white font-semibold py-3 rounded-lg hover:bg-gray-800 hover:border-gray-700 transition-all flex items-center justify-center gap-2"
+                className="w-full border border-gray-700 bg-gray-900/50 text-white font-semibold py-3 rounded-xl hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
               >
                 <Plus size={20} />
                 Add Another URL
@@ -205,7 +306,7 @@ export default function UploadPage() {
               <button
                 onClick={handleYoutubeSubmit}
                 disabled={youtubeUrls.every(url => !url.trim())}
-                className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-linear-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Process YouTube Videos
               </button>
@@ -214,7 +315,7 @@ export default function UploadPage() {
 
           {activeTab === 'files' && (
             <div className="space-y-4">
-              <div className="border-2 border-dashed border-gray-800 rounded-lg p-8 sm:p-12 text-center hover:border-gray-700 transition-all cursor-pointer bg-gray-950">
+              <div className="border-2 border-dashed border-gray-700 rounded-2xl p-12 text-center hover:border-blue-500 transition-all cursor-pointer bg-linear-to-br from-gray-900/50 to-gray-800/50">
                 <input
                   type="file"
                   id="file-upload"
@@ -224,11 +325,13 @@ export default function UploadPage() {
                   className="hidden"
                 />
                 <label htmlFor="file-upload" className="cursor-pointer">
-                  <Upload size={64} className="mx-auto mb-4 text-gray-600" />
-                  <p className="text-xl font-semibold text-white mb-2">
+                  <div className="bg-linear-to-r from-blue-500 to-purple-600 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Upload size={40} className="text-white" />
+                  </div>
+                  <p className="text-2xl font-semibold text-white mb-2">
                     Click to upload documents
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-400">
                     Supports: VTT, SRT, TXT, DOC, DOCX, PDF
                   </p>
                 </label>
@@ -241,15 +344,17 @@ export default function UploadPage() {
                     {selectedFiles.map((file, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between bg-gray-950 border border-gray-800 p-3 rounded-lg hover:bg-gray-900 transition-all"
+                        className="flex items-center justify-between bg-gray-900/50 border border-gray-700 p-4 rounded-xl hover:bg-gray-800/50 transition-all"
                       >
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <FileText size={20} className="text-gray-500 flex-shrink-0" />
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="bg-blue-500/20 p-2 rounded-lg">
+                            <FileText size={20} className="text-blue-400" />
+                          </div>
                           <span className="text-sm font-medium text-white truncate">{file.name}</span>
                         </div>
                         <button
                           onClick={() => removeFile(index, 'file')}
-                          className="text-red-500 hover:text-red-400 ml-2 flex-shrink-0"
+                          className="text-red-400 hover:text-red-300 ml-2 flex-shrink-0 p-2 hover:bg-red-900/20 rounded-lg transition-all"
                         >
                           <X size={20} />
                         </button>
@@ -258,9 +363,17 @@ export default function UploadPage() {
                   </div>
                   <button
                     onClick={handleFileSubmit}
-                    className="w-full bg-white cursor-pointer text-black font-semibold py-3 rounded-lg hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl"
+                    disabled={loadingFiles}
+                    className="w-full bg-linear-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Upload {selectedFiles.length} File{selectedFiles.length !== 1 ? 's' : ''}
+                    {loadingFiles ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Uploading...
+                      </span>
+                    ) : (
+                      `Upload ${selectedFiles.length} File${selectedFiles.length !== 1 ? 's' : ''}`
+                    )}
                   </button>
                 </div>
               )}
@@ -269,7 +382,7 @@ export default function UploadPage() {
 
           {activeTab === 'videos' && (
             <div className="space-y-4">
-              <div className="border-2 border-dashed border-gray-800 rounded-lg p-8 sm:p-12 text-center hover:border-gray-700 transition-all cursor-pointer bg-gray-950">
+              <div className="border-2 border-dashed border-gray-700 rounded-2xl p-12 text-center hover:border-blue-500 transition-all cursor-pointer bg-linear-to-br from-gray-900/50 to-gray-800/50">
                 <input
                   type="file"
                   id="video-upload"
@@ -279,11 +392,13 @@ export default function UploadPage() {
                   className="hidden"
                 />
                 <label htmlFor="video-upload" className="cursor-pointer">
-                  <Video size={64} className="mx-auto mb-4 text-gray-600" />
-                  <p className="text-xl font-semibold text-white mb-2">
+                  <div className="bg-linear-to-r from-purple-500 to-pink-600 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Video size={40} className="text-white" />
+                  </div>
+                  <p className="text-2xl font-semibold text-white mb-2">
                     Click to upload videos
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-400">
                     Supports: MP4, AVI, MOV, MKV, and more
                   </p>
                 </label>
@@ -296,15 +411,17 @@ export default function UploadPage() {
                     {selectedVideos.map((file, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between bg-gray-950 border border-gray-800 p-3 rounded-lg hover:bg-gray-900 transition-all"
+                        className="flex items-center justify-between bg-gray-900/50 border border-gray-700 p-4 rounded-xl hover:bg-gray-800/50 transition-all"
                       >
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <Video size={20} className="text-gray-500 flex-shrink-0" />
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="bg-purple-500/20 p-2 rounded-lg">
+                            <Video size={20} className="text-purple-400" />
+                          </div>
                           <span className="text-sm font-medium text-white truncate">{file.name}</span>
                         </div>
                         <button
                           onClick={() => removeFile(index, 'video')}
-                          className="text-red-500 cursor-pointer hover:text-red-400 ml-2 flex-shrink-0"
+                          className="text-red-400 hover:text-red-300 ml-2 flex-shrink-0 p-2 hover:bg-red-900/20 rounded-lg transition-all"
                         >
                           <X size={20} />
                         </button>
@@ -314,9 +431,16 @@ export default function UploadPage() {
                   <button
                     disabled={loadingVideo}
                     onClick={handleVideoSubmit}
-                    className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-linear-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loadingVideo ? 'Uploading...' : `Upload ${selectedVideos.length} Video${selectedVideos.length !== 1 ? 's' : ''}`}
+                    {loadingVideo ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Uploading & Processing...
+                      </span>
+                    ) : (
+                      `Upload ${selectedVideos.length} Video${selectedVideos.length !== 1 ? 's' : ''}`
+                    )}
                   </button>
                 </div>
               )}
@@ -333,9 +457,8 @@ export default function UploadPage() {
                 {subtitleFiles.map((item, index) => (
                   <div
                     key={index}
-                    className="bg-gray-950 border border-gray-800 rounded-lg p-4 space-y-3"
+                    className="bg-gray-900/50 border border-gray-700 rounded-xl p-4 space-y-3"
                   >
-                    {/* Subtitle File Upload */}
                     <div className="flex gap-2">
                       <input
                         type="file"
@@ -346,9 +469,9 @@ export default function UploadPage() {
                       />
                       <label
                         htmlFor={`subtitle-file-${index}`}
-                        className="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-sm cursor-pointer hover:bg-gray-800 transition-all flex items-center gap-2"
+                        className="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-700 transition-all flex items-center gap-2"
                       >
-                        <FileText size={16} className="text-gray-500 flex-shrink-0" />
+                        <FileText size={16} className="text-gray-400 flex-shrink-0" />
                         {item.file ? (
                           <span className="text-white truncate">{item.file.name}</span>
                         ) : (
@@ -358,20 +481,19 @@ export default function UploadPage() {
                       {subtitleFiles.length > 1 && (
                         <button
                           onClick={() => removeSubtitleField(index)}
-                          className="bg-gray-900 border border-gray-800 text-red-500 px-4 rounded-lg hover:bg-gray-800 hover:border-red-500 transition-all"
+                          className="bg-gray-800 border border-gray-700 text-red-400 px-4 rounded-xl hover:bg-gray-700 hover:border-red-500 transition-all"
                         >
                           <X size={20} />
                         </button>
                       )}
                     </div>
 
-                    {/* Video Link Input */}
                     <input
                       type="url"
                       value={item.videoLink}
                       onChange={(e) => updateSubtitleVideoLink(index, e.target.value)}
                       placeholder="Enter video link (YouTube, Vimeo, etc.)"
-                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-700"
+                      className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                   </div>
                 ))}
@@ -379,7 +501,7 @@ export default function UploadPage() {
 
               <button
                 onClick={addSubtitleField}
-                className="w-full border border-gray-800 bg-gray-900 text-white font-semibold py-3 rounded-lg hover:bg-gray-800 hover:border-gray-700 transition-all flex items-center justify-center gap-2"
+                className="w-full border border-gray-700 bg-gray-900/50 text-white font-semibold py-3 rounded-xl hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
               >
                 <Plus size={20} />
                 Add Another Subtitle File
@@ -388,10 +510,17 @@ export default function UploadPage() {
               {subtitleFiles.length > 0 && (
                 <button
                   onClick={handleSubtitleSubmit}
-                  disabled={subtitleFiles.some(item => !item.file || !item.videoLink.trim())}
-                  className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={subtitleFiles.some(item => !item.file || !item.videoLink.trim()) || loadingSubtitles}
+                  className="w-full bg-linear-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Upload {subtitleFiles.length} Subtitle{subtitleFiles.length !== 1 ? 's' : ''} with Video Link{subtitleFiles.length !== 1 ? 's' : ''}
+                  {loadingSubtitles ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Uploading...
+                    </span>
+                  ) : (
+                    `Upload ${subtitleFiles.length} Subtitle${subtitleFiles.length !== 1 ? 's' : ''} with Video Link${subtitleFiles.length !== 1 ? 's' : ''}`
+                  )}
                 </button>
               )}
             </div>

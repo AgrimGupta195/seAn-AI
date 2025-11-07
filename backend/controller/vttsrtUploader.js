@@ -1,6 +1,7 @@
 import multer from "multer";
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import OpenAI from "openai";
 import { Pinecone } from "@pinecone-database/pinecone";
@@ -14,7 +15,13 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
 
 // ------------------ AWS S3 setup ------------------
-const s3 = new S3Client({ region: process.env.AWS_REGION });
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
 export async function uploadFileToS3(filePath, fileName) {
   const fileStream = fs.createReadStream(filePath);
@@ -30,7 +37,7 @@ export async function uploadFileToS3(filePath, fileName) {
 // ------------------ Multer setup ------------------
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = "uploads/";
+    const uploadPath = path.join(os.tmpdir(), "uploads");
     if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
     cb(null, uploadPath);
   },
@@ -110,25 +117,29 @@ async function storeVectorsInPinecone(vectors,id) {
 
 // ------------------ Controller ------------------
 export const uploadFilesSRTVTT = (req, res) => {
-
   upload(req, res, async (err) => {
     if (err)
       return res.status(500).json({ message: "Upload error", error: err.message });
     if (!req.files || req.files.length === 0)
       return res.status(400).json({ message: "No files uploaded" });
-    if(!req.links || req.links.length===0)
-         return res.status(400).json({ message: "No Links uploaded" });
+    
+    const links = req.body.links ? (Array.isArray(req.body.links) ? req.body.links : [req.body.links]) : [];
+    
+    if (links.length === 0)
+      return res.status(400).json({ message: "No Links provided" });
+    
     try {
       const allVectors = [];
 
-      for (const i =0; i< req.files.length; i++) {
+      for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
-        const link = req.links[i];
+        const link = links[i] || links[0]; // Use first link if not enough links provided
+        
         console.log(`📄 Processing ${file.originalname}`);
 
         // 1️⃣ Extract text
         const text = await extractText(file.path);
-        const chunks = chunkText(text+`\n Source Link: ${link}`);
+        const chunks = chunkText(text + `\n Source Link: ${link}`);
 
         // 2️⃣ Upload to S3
         const s3Url = await uploadFileToS3(file.path, file.filename);
@@ -138,10 +149,12 @@ export const uploadFilesSRTVTT = (req, res) => {
         allVectors.push(...embeddings);
 
         // 4️⃣ Store in Pinecone
-        await storeVectorsInPinecone(embeddings,req.user._id);
+        await storeVectorsInPinecone(embeddings, req.user._id);
 
         // 5️⃣ Delete temp file
-        fs.unlinkSync(file.path);
+        if (fs.existsSync(file.path)) {
+          fs.unlinkSync(file.path);
+        }
       }
 
       res.json({

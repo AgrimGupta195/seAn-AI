@@ -1,57 +1,61 @@
 import React, { useState } from 'react'
-import { Upload, Settings, LogOut, Menu, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import axiosInstance from '../lib/axios';
+import { Upload, LogOut, Menu, X, Home, Book } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
-  const handleLogout = async ()=>{
-    try{
-      await axiosInstance.post('/user/logout');
-      alert('Logout successful');
-    }catch(error){
-      alert('Logout failed');
-    }
-  }
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   return (
-    <div className="bg-black border-b fixed w-full border-white px-4 md:px-6 py-4 backdrop-blur-2xl shadow-lg z-50">
+    <div className="bg-[#050d1a]/85 border-b border-slate-800 fixed inset-x-0 top-0 px-4 md:px-6 py-3 backdrop-blur-xl shadow-lg z-50">
       <div className="flex justify-between items-center max-w-7xl mx-auto">
-        <h1 className='text-2xl md:text-3xl font-bold text-white'>seAn AI</h1>
-        <div className="hidden md:flex items-center gap-4 lg:gap-6">
-          <Link to="/upload">
-          <button className="flex cursor-pointer items-center gap-2 px-3 lg:px-4 py-2 bg-white text-black font-semibold rounded-lg hover:bg-gray-200 transition-all text-sm lg:text-base">
-            <Upload size={20}/>
-            <span>Upload</span>
-          </button>
-          </Link>
-          
-          <div className="relative">
-            <button 
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex cursor-pointer items-center gap-2 px-3 lg:px-4 py-2 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-black transition-all text-sm lg:text-base"
-            >
-              <Settings size={20}/>
-              <span>Settings</span>
+        <Link to="/" className="text-2xl md:text-3xl font-bold bg-linear-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent hover:from-indigo-300 hover:to-purple-400 transition-all">
+          SeAn AI
+        </Link>
+        <div className="hidden md:flex items-center gap-3 lg:gap-4">
+          <Link to="/">
+            <button className="flex items-center gap-2 px-4 py-2 border border-slate-700 text-slate-200 font-semibold rounded-lg hover:bg-slate-800/80 hover:text-white transition-all text-sm">
+              <Home size={18}/>
+              <span>Home</span>
             </button>
-            
-            {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border-2 border-black rounded-lg shadow-xl z-50">
-                <button 
-                  className="w-full flex cursor-pointer items-center gap-3 px-4 py-3 text-black font-semibold hover:bg-gray-100 transition-all rounded-lg"
-                  onClick={() => {
-                        handleLogout();
-                        setIsDropdownOpen(false);
-                  }}
-                >
-                  <LogOut size={20}/>
-                  <span>Logout</span>
+          </Link>
+          {user && (
+            <>
+              <Link to="/upload">
+                <button className="flex items-center gap-2 px-4 py-2 bg-linear-to-r from-indigo-500 to-purple-500 text-white font-semibold rounded-lg hover:from-indigo-400 hover:to-purple-400 transition-all text-sm shadow-lg shadow-indigo-900/50">
+                  <Upload size={18}/>
+                  <span>Upload</span>
                 </button>
-              </div>
-            )}
-          </div>
+              </Link>
+              <Link to="/dashboard">
+                <button className="flex items-center gap-2 px-4 py-2 border border-slate-700 text-slate-200 font-semibold rounded-lg hover:bg-slate-800/80 hover:text-white transition-all text-sm">
+                  <Book size={18}/>
+                  <span>Docs</span>
+                </button>
+              </Link>
+              <button 
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 border border-red-500/60 text-red-400 font-semibold rounded-lg hover:bg-red-900/30 transition-all text-sm"
+              >
+                <LogOut size={18}/>
+                <span>Logout</span>
+              </button>
+            </>
+          )}
+          {!user && (
+            <Link to="/login">
+              <button className="flex items-center gap-2 px-4 py-2 bg-linear-to-r from-indigo-500 to-purple-500 text-white font-semibold rounded-lg hover:from-indigo-400 hover:to-purple-400 transition-all text-sm shadow-lg shadow-indigo-900/50">
+                Login
+              </button>
+            </Link>
+          )}
         </div>
         <button 
           className="md:hidden text-white"
@@ -61,33 +65,46 @@ const Navbar = () => {
         </button>
       </div>
       {isMobileMenuOpen && (
-        <div className="md:hidden mt-4 pb-4 border-t border-white pt-4">
-          <div className="flex flex-col gap-3">
-            <button className="flex items-center gap-2 px-4 py-3 bg-white text-black font-semibold rounded-lg hover:bg-gray-200 transition-all">
-              <Upload size={20}/>
-              <span>Upload</span>
-            </button>
-            
-            <button 
-              className="flex items-center gap-2 px-4 py-3 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-black transition-all"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-              <Settings size={20}/>
-              <span>Settings</span>
-            </button>
-
-            {isDropdownOpen && (
-              <button 
-                className="flex items-center gap-2 px-4 py-3 bg-white text-black font-semibold rounded-lg hover:bg-gray-100 transition-all ml-4"
-                onClick={() => {
-                  console.log('Logging out...');
-                  setIsDropdownOpen(false);
-                  setIsMobileMenuOpen(false);
-                }}
-              >
-                <LogOut size={20}/>
-                <span>Logout</span>
+        <div className="md:hidden mt-4 pb-4 border-t border-gray-800 pt-4">
+          <div className="flex flex-col gap-2">
+            <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
+              <button className="w-full flex items-center gap-2 px-4 py-3 border border-gray-700 text-gray-300 font-semibold rounded-lg hover:bg-gray-800 transition-all">
+                <Home size={20}/>
+                <span>Home</span>
               </button>
+            </Link>
+            {user && (
+              <>
+                <Link to="/upload" onClick={() => setIsMobileMenuOpen(false)}>
+                  <button className="w-full flex items-center gap-2 px-4 py-3 bg-linear-to-r from-indigo-500 to-purple-500 text-white font-semibold rounded-lg hover:from-indigo-400 hover:to-purple-400 transition-all">
+                    <Upload size={20}/>
+                    <span>Upload</span>
+                  </button>
+                </Link>
+                <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                  <button className="w-full flex items-center gap-2 px-4 py-3 border border-slate-700 text-slate-200 font-semibold rounded-lg hover:bg-slate-800/80 transition-all">
+                    <Book size={20}/>
+                    <span>Documentation</span>
+                  </button>
+                </Link>
+                <button 
+                  className="w-full flex items-center gap-2 px-4 py-3 border border-red-500/60 text-red-400 font-semibold rounded-lg hover:bg-red-900/30 transition-all"
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  <LogOut size={20}/>
+                  <span>Logout</span>
+                </button>
+              </>
+            )}
+            {!user && (
+              <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                <button className="w-full flex items-center gap-2 px-4 py-3 bg-linear-to-r from-indigo-500 to-purple-500 text-white font-semibold rounded-lg hover:from-indigo-400 hover:to-purple-400 transition-all">
+                  Login
+                </button>
+              </Link>
             )}
           </div>
         </div>
@@ -96,4 +113,4 @@ const Navbar = () => {
   )
 }
 
-export default Navbar
+export default Navbar;

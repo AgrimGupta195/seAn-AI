@@ -1,20 +1,16 @@
-import { Agent, run, tool } from '@openai/agents';
 import { Pinecone } from '@pinecone-database/pinecone';
-import { z } from 'zod';
 import dotenv from 'dotenv';
 import OpenAI from "openai";
 
 dotenv.config();
 
-// -------------------- Setup --------------------
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
 
-// -------------------- Search Functions -------------------
 async function search(userQuery, modifiedQuery, namespace) {
   const embeddingResponse = await openai.embeddings.create({
     model: "text-embedding-3-large",
-    input: `${userQuery}\n${modifiedQuery}`,
+    input: userQuery,
     dimensions: 1024,
   });
 
@@ -23,7 +19,7 @@ async function search(userQuery, modifiedQuery, namespace) {
 
   const results = await index.query({
     vector: embedding,
-    topK: 5,
+    topK: 3,
     includeMetadata: true,
   });
 
@@ -31,86 +27,127 @@ async function search(userQuery, modifiedQuery, namespace) {
     id: match.id,
     score: match.score,
     text: match.metadata?.text || "No text found",
+    start: match.metadata?.start,
+    end: match.metadata?.end,
+    source: match.metadata?.source,
+    s3Url: match.metadata?.s3Url,
   }));
 
+  if (answers.length > 0 && answers[0].score > 0.8) {
+    const topAnswer = answers[0];
+    return { 
+      answer: topAnswer.text.substring(0, 500),
+      sources: [topAnswer] 
+    };
+  }
+
   const combinedContext = answers
-    .slice(0, 3)
-    .map((a, i) => `(${i + 1}) ${a.text}`)
+    .slice(0, 2)
+    .map((a, i) => `[${i + 1}] ${a.text}`)
     .join("\n\n");
 
-  const bestAnswer = await correctAnswer(userQuery, modifiedQuery, combinedContext);
-  return bestAnswer;
+  const bestAnswer = await correctAnswer(userQuery, combinedContext, answers);
+  return { answer: bestAnswer, sources: answers.slice(0, 2) };
 }
 
-async function correctAnswer(query, modifiedQuery, context) {
-  const response = await openai.responses.create({
-    model: "gpt-5",
-    input: `
-      Here is the user query: ${query}.
-      Modified query by GPT: ${modifiedQuery}.
-      Embedding-related context: ${context}.
-      Write just the answer to the query directly, in limited words, without extra info.
-    `
+function formatTimestamp(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+async function correctAnswer(query, context, sources) {
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      {
+        role: "system",
+        content: "Answer questions using ONLY the provided context. Be concise."
+      },
+      {
+        role: "user",
+        content: `Question: "${query}"
+
+Context:
+${context}
+
+Answer using ONLY the context above.`
+      }
+    ],
+    temperature: 0.2,
+    max_tokens: 300,
   });
 
-  return response.output_text;
+  return response.choices[0].message.content;
 }
 
 async function searchWithGPT(query, modifiedQuery) {
-  const response = await openai.responses.create({
-    model: "gpt-5",
-    input: `Write just the answer to the query: ${query} (Modified query: ${modifiedQuery}). Give answer directly, no extra info.`
+  // This is only used for hybrid search, but we'll make it less important
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      {
+        role: "system",
+        content: "You are a helpful AI assistant. Provide a brief general answer."
+      },
+      {
+        role: "user",
+        content: `Briefly answer: ${query}`
+      }
+    ],
+    temperature: 0.3,
+    max_tokens: 200,
   });
 
-  return response.output_text;
+  return response.choices[0].message.content;
 }
 
 async function finalAnswer(res1, res2, query, modifiedQuery) {
-  const response = await openai.responses.create({
-    model: "gpt-5",
-    input: `
-      You have two responses: ${res1} AND ${res2}.
-      User query: ${query}, Modified query: ${modifiedQuery}.
-      Blend them into a correct, concise answer. Do not give extra info, output directly.
-    `
+  // res1 is GPT-only, res2 is from RAG (more reliable)
+  // Prioritize res2 (RAG result) over res1
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      {
+        role: "system",
+        content: `You are a helpful AI assistant that combines information from multiple sources. 
+        
+CRITICAL: The second response (RAG result) is from the user's knowledge base and is MORE RELIABLE. 
+Prioritize the RAG result (second response) over the general answer (first response).
+Only use the first response if it adds important context that's missing from the second response.`
+      },
+      {
+        role: "user",
+        content: `User Question: "${query}"
+
+Response 1 (General): ${res1}
+
+Response 2 (From Knowledge Base - PRIORITIZE THIS): ${res2}
+
+Combine these responses, but prioritize Response 2 (from knowledge base) as it's more accurate and relevant. Only use Response 1 if it adds crucial missing context.`
+      }
+    ],
+    temperature: 0.3,
+    max_tokens: 500,
   });
 
-  return response.output_text;
+  return response.choices[0].message.content;
 }
 
-// -------------------- Tools --------------------
-const directSearch = tool({
-  name: 'direct Search',
-  description: "Search for related info like timestamps and video links",
-  parameters: z.object({ query: z.string(), modifiedQuery: z.string(), id: z.string() }),
-  async execute({ query, modifiedQuery, id }) {
-    return await search(query, modifiedQuery, id);
-  },
-});
+// Determine if query is about timestamps/videos
+async function isVideoQuery(query) {
+  const videoKeywords = ['timestamp', 'time', 'when', 'where', 'video', 'minute', 'second', 'hour', 'at what time'];
+  const lowerQuery = query.toLowerCase();
+  return videoKeywords.some(keyword => lowerQuery.includes(keyword));
+}
 
-const hybridSearch = tool({
-  name: 'hybrid Search',
-  description: "Search for document-related info",
-  parameters: z.object({ query: z.string(), modifiedQuery: z.string(), id: z.string() }),
-  async execute({ query, modifiedQuery, id }) {
-    const res1 = await searchWithGPT(query, modifiedQuery);
-    const res2 = await search(query, modifiedQuery, id);
-    return await finalAnswer(res1, res2, query, modifiedQuery);
-  },
-});
-
-// -------------------- Agent & SearchBox --------------------
 export async function searchBox(query, modifiedQuery, id) {
-  const agent = Agent.create({
-    name: 'Search Agent',
-    model: 'gpt-4.1-mini',
-    tools: [directSearch, hybridSearch],
-    instructions: `
-      You are a search agent.
-      If the query is related to timestamps or video links, call directSearch.
-      If the query is related to documents, call hybridSearch.
-    `
-  });
-  const result = await run(agent, { query, modifiedQuery, id });
-  return result.finalOutput;
+  try {
+    const result = await search(query, modifiedQuery, id);
+    return result;
+  } catch (error) {
+    console.error('SearchBox error:', error);
+    throw error;
+  }
 }

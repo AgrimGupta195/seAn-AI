@@ -1,8 +1,9 @@
 import multer from "multer";
 import fs from "fs";
 import path from "path";
+import os from "os";
 import fetch from "node-fetch";
-import extractAudio from "ffmpeg-extract-audio";
+import FormData from "form-data";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import OpenAI from "openai";
 import { Pinecone } from "@pinecone-database/pinecone";
@@ -10,12 +11,17 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// ------------------ Setup ------------------
-const s3 = new S3Client({ region: process.env.AWS_REGION });
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
+const PYTHON_SERVICE_URL = process.env.PYTHON_SERVICE_URL || "http://localhost:8000";
 
-// ------------------ Upload file to S3 ------------------
 async function uploadFileToS3(filePath, fileName) {
   const fileStream = fs.createReadStream(filePath);
   const uploadParams = {
@@ -27,10 +33,9 @@ async function uploadFileToS3(filePath, fileName) {
   return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
 }
 
-// ------------------ Multer (Video Upload) ------------------
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = "uploads/";
+    const uploadPath = path.join(os.tmpdir(), "uploads");
     if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
     cb(null, uploadPath);
   },
@@ -50,42 +55,37 @@ const videoFileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter: videoFileFilter,
-  limits: { fileSize: 500 * 1024 * 1024 }, // 500MB
+  limits: { fileSize: 500 * 1024 * 1024 },
 }).array("videos", 10);
 
-// ------------------ Extract Audio ------------------
-async function extractAudioFromFile(videoPath, outputPath) {
-  await extractAudio({ input: videoPath, output: outputPath });
-  return outputPath;
-}
+async function extractAudioFromFile(videoPath) {
+  const form = new FormData();
+  form.append("file", fs.createReadStream(videoPath), {
+    filename: path.basename(videoPath),
+    contentType: "video/mp4",
+  });
+  form.append("output_format", "mp3");
 
-async function extractAudioFromUrl(videoUrl, outputPath) {
-  const tempPath = path.join("temp_" + Date.now() + ".mp4");
-
-  // Download video
-  const response = await fetch(videoUrl);
-  if (!response.ok) throw new Error(`Failed to fetch video: ${response.statusText}`);
-
-  const fileStream = fs.createWriteStream(tempPath);
-  await new Promise((resolve, reject) => {
-    response.body.pipe(fileStream);
-    response.body.on("error", reject);
-    fileStream.on("finish", resolve);
+  const response = await fetch(`${PYTHON_SERVICE_URL}/extract-audio`, {
+    method: "POST",
+    body: form,
+    headers: form.getHeaders(),
   });
 
-  // Extract audio
-  await extractAudio({ input: tempPath, output: outputPath });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Python audio extraction failed: ${errorText}`);
+  }
 
-  fs.unlinkSync(tempPath); // Cleanup temp video
-  return outputPath;
+  const result = await response.json();
+  return result.s3_url;
 }
 
-// ------------------ Transcribe with Whisper ------------------
 async function transcribeAudio(audioPath) {
   const transcription = await openai.audio.transcriptions.create({
     file: fs.createReadStream(audioPath),
     model: "whisper-1",
-    response_format: "verbose_json", // timestamps included
+    response_format: "verbose_json",
   });
 
   const segments = transcription.segments.map(seg => ({
@@ -97,8 +97,7 @@ async function transcribeAudio(audioPath) {
   return { text: transcription.text, segments };
 }
 
-// ------------------ Store in Pinecone ------------------
-async function storeSegmentsInPinecone(segments, videoName, s3Url,id) {
+async function storeSegmentsInPinecone(segments, videoName, s3Url, id) {
   const index = pinecone.index("seanai").namespace(id);
 
   const vectors = await Promise.all(
@@ -127,7 +126,6 @@ async function storeSegmentsInPinecone(segments, videoName, s3Url,id) {
   console.log(`✅ Stored ${vectors.length} segments in Pinecone`);
 }
 
-// ------------------ Controller for Uploaded Videos ------------------
 export const uploadVideosAndTranscribe = (req, res) => {
   upload(req, res, async (err) => {
     if (err) return res.status(400).json({ message: err.message });
@@ -140,17 +138,26 @@ export const uploadVideosAndTranscribe = (req, res) => {
       for (const file of req.files) {
         console.log(`🎥 Processing video: ${file.originalname}`);
         const s3Url = await uploadFileToS3(file.path, file.filename);
-        const audioPath = path.join("uploads", `audio_${Date.now()}.mp3`);
-        await extractAudioFromFile(file.path, audioPath);
+        const audioS3Url = await extractAudioFromFile(file.path);
+        const audioPath = path.join(os.tmpdir(), `audio_${Date.now()}.mp3`);
+        
+        const audioResponse = await fetch(audioS3Url);
+        const audioBuffer = await audioResponse.buffer();
+        fs.writeFileSync(audioPath, audioBuffer);
+        
         const transcription = await transcribeAudio(audioPath);
-        await storeSegmentsInPinecone(transcription.segments, file.filename, s3Url,req.user._id);
-        fs.unlinkSync(file.path);
-        fs.unlinkSync(audioPath);
+        await storeSegmentsInPinecone(transcription.segments, file.filename, s3Url, req.user._id);
+        if (fs.existsSync(file.path)) {
+          fs.unlinkSync(file.path);
+        }
+        if (fs.existsSync(audioPath)) {
+          fs.unlinkSync(audioPath);
+        }
         results.push({ fileName: file.originalname, s3Url, transcription });
       }
 
       res.json({
-        message: "✅ Videos uploaded, transcribed, and stored in Pinecone successfully!",
+        message: `✅ ${results.length} video(s) uploaded, transcribed, and stored successfully!`,
         results,
       });
     } catch (error) {
@@ -159,33 +166,3 @@ export const uploadVideosAndTranscribe = (req, res) => {
     }
   });
 };
-
-// ------------------ Process Video from URL ------------------
-export async function processVideoUrl(videoUrl) {
-  try {
-    const videoName = "video_" + Date.now() + path.extname(videoUrl.split("/").pop());
-
-    // 1️⃣ Extract audio
-    const audioPath = path.join("uploads", `audio_${Date.now()}.mp3`);
-    await extractAudioFromUrl(videoUrl, audioPath);
-
-    // 2️⃣ Upload video to S3
-    const tempVideoPath = path.join("uploads", videoName);
-    const response = await fetch(videoUrl);
-    const fileStream = fs.createWriteStream(tempVideoPath);
-    await new Promise((resolve, reject) => {
-      response.body.pipe(fileStream);
-      response.body.on("error", reject);
-      fileStream.on("finish", resolve);
-    });
-    const s3Url = await uploadFileToS3(tempVideoPath, videoName);
-    const transcription = await transcribeAudio(audioPath);
-    await storeSegmentsInPinecone(transcription.segments, videoName, s3Url);
-    fs.unlinkSync(audioPath);
-    fs.unlinkSync(tempVideoPath);
-    return { fileName: videoName, s3Url, transcription };
-  } catch (err) {
-    console.error("❌ Error processing video URL:", err);
-    throw err;
-  }
-}

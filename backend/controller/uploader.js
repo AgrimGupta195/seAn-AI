@@ -1,6 +1,7 @@
 import multer from "multer";
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import OpenAI from "openai";
 import { Pinecone } from "@pinecone-database/pinecone";
@@ -14,7 +15,13 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
 
 // ------------------ AWS S3 setup ------------------
-const s3 = new S3Client({ region: process.env.AWS_REGION });
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
 export async function uploadFileToS3(filePath, fileName) {
   const fileStream = fs.createReadStream(filePath);
@@ -30,7 +37,7 @@ export async function uploadFileToS3(filePath, fileName) {
 // ------------------ Multer setup ------------------
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = "uploads/";
+    const uploadPath = path.join(os.tmpdir(), "uploads");
     if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
     cb(null, uploadPath);
   },
@@ -45,7 +52,7 @@ const upload = multer({
   limits: { fileSize: 500 * 1024 * 1024 },
 }).array("files", 10);
 
-// ------------------ Text Extraction ------------------
+// ------------------ Text Extraction with Timestamp Preservation ------------------
 export async function extractText(filePath) {
   const ext = path.extname(filePath).toLowerCase();
 
@@ -66,23 +73,87 @@ export async function extractText(filePath) {
 
   if (ext === ".srt" || ext === ".vtt") {
     const content = fs.readFileSync(filePath, "utf8");
-    return content.replace(
-      /\d+\n\d{2}:\d{2}:\d{2},?\d* --> \d{2}:\d{2}:\d{2},?\d*\n/g,
-      ""
-    );
+    // Parse SRT/VTT and preserve timestamps
+    return parseSubtitleWithTimestamps(content, ext);
   }
 
   // fallback
   return fs.readFileSync(filePath, "utf8");
 }
 
-// ------------------ Chunking ------------------
+function parseSubtitleWithTimestamps(content, format) {
+  const lines = content.split('\n');
+  const segments = [];
+  let currentSegment = { text: '', start: null, end: null };
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    if (!line) continue;
+    
+    // Match timestamp pattern: 00:00:00,000 --> 00:00:00,000 or 00:00:00.000 --> 00:00:00.000
+    const timestampMatch = line.match(/(\d{2}):(\d{2}):(\d{2})[,.](\d{3})\s*-->\s*(\d{2}):(\d{2}):(\d{2})[,.](\d{3})/);
+    
+    if (timestampMatch) {
+      const startTime = parseFloat(timestampMatch[1]) * 3600 + 
+                       parseFloat(timestampMatch[2]) * 60 + 
+                       parseFloat(timestampMatch[3]) + 
+                       parseFloat(timestampMatch[4]) / 1000;
+      const endTime = parseFloat(timestampMatch[5]) * 3600 + 
+                     parseFloat(timestampMatch[6]) * 60 + 
+                     parseFloat(timestampMatch[7]) + 
+                     parseFloat(timestampMatch[8]) / 1000;
+      
+      if (currentSegment.text) {
+        segments.push(currentSegment);
+      }
+      
+      currentSegment = { text: '', start: startTime, end: endTime };
+    } else if (currentSegment.start !== null && !line.match(/^\d+$/)) {
+      // Add text to current segment (skip sequence numbers)
+      currentSegment.text += (currentSegment.text ? ' ' : '') + line;
+    }
+  }
+  
+  if (currentSegment.text) {
+    segments.push(currentSegment);
+  }
+  
+  // Return text with embedded timestamp info
+  return segments.map(seg => 
+    `${seg.text} [Timestamp: ${formatTimestamp(seg.start)}-${formatTimestamp(seg.end)}]`
+  ).join('\n');
+}
+
+function formatTimestamp(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// ------------------ Chunking with Timestamp Preservation ------------------
 function chunkText(text, chunkSize = 1000, overlap = 200) {
   const chunks = [];
-  for (let i = 0; i < text.length; i += chunkSize - overlap) {
-    chunks.push(text.slice(i, i + chunkSize));
+  const lines = text.split('\n');
+  let currentChunk = '';
+  
+  for (const line of lines) {
+    if (currentChunk.length + line.length > chunkSize && currentChunk) {
+      chunks.push(currentChunk.trim());
+      // Overlap: keep last part of previous chunk
+      const overlapText = currentChunk.slice(-overlap);
+      currentChunk = overlapText + '\n' + line;
+    } else {
+      currentChunk += (currentChunk ? '\n' : '') + line;
+    }
   }
-  return chunks;
+  
+  if (currentChunk.trim()) {
+    chunks.push(currentChunk.trim());
+  }
+  
+  return chunks.length > 0 ? chunks : [text];
 }
 
 // ------------------ Embedding ------------------
@@ -137,7 +208,9 @@ export const uploadFiles = (req, res) => {
         await storeVectorsInPinecone(embeddings,req.user._id);
 
         // 5️⃣ Delete temp file
-        fs.unlinkSync(file.path);
+        if (fs.existsSync(file.path)) {
+          fs.unlinkSync(file.path);
+        }
       }
 
       res.json({

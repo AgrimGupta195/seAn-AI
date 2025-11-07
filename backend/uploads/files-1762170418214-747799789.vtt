@@ -1,0 +1,1341 @@
+WEBVTT - Subtitles by: DownloadYoutubeSubtitles.com
+
+00:00:00.719 --> 00:00:05.759
+Hey there everyone, my name is and I
+
+00:00:02.960 --> 00:00:07.600
+make coding videos. In this video I
+
+00:00:05.759 --> 00:00:09.440
+would love to walk you through that
+
+00:00:07.600 --> 00:00:11.759
+there are certain platforms which are
+
+00:00:09.440 --> 00:00:13.599
+challenging the traditional route of
+
+00:00:11.759 --> 00:00:15.679
+building the applications and especially
+
+00:00:13.599 --> 00:00:18.000
+on the back end side. You have already
+
+00:00:15.679 --> 00:00:20.480
+seen a lot of backends in Java,
+
+00:00:18.000 --> 00:00:22.960
+JavaScript, Express,
+
+00:00:20.480 --> 00:00:24.640
+NexJS and a whole bunch of things. But
+
+00:00:22.960 --> 00:00:26.800
+there are few new players in the market
+
+00:00:24.640 --> 00:00:28.960
+which are challenging this traditional
+
+00:00:26.800 --> 00:00:30.720
+way of developing the back end. and I'm
+
+00:00:28.960 --> 00:00:33.360
+super excited, super interesting in
+
+00:00:30.720 --> 00:00:35.760
+them. One such player is Moshia which
+
+00:00:33.360 --> 00:00:38.399
+was also trending a few days ago on the
+
+00:00:35.760 --> 00:00:40.320
+GitHub and I recently created a video
+
+00:00:38.399 --> 00:00:42.960
+about exploring their platform and their
+
+00:00:40.320 --> 00:00:45.360
+philosophy of building. In this video
+
+00:00:42.960 --> 00:00:47.680
+together for the very first time I want
+
+00:00:45.360 --> 00:00:49.840
+to build an application with them, what
+
+00:00:47.680 --> 00:00:51.680
+it's like to build or initiate an
+
+00:00:49.840 --> 00:00:53.600
+application, what kind of a code files
+
+00:00:51.680 --> 00:00:55.920
+they generate and how does it look like
+
+00:00:53.600 --> 00:00:57.680
+to have the very basic app. I did one
+
+00:00:55.920 --> 00:01:00.000
+such video for the nextjs as well when
+
+00:00:57.680 --> 00:01:01.600
+the nextjs came out and I was super
+
+00:01:00.000 --> 00:01:03.680
+happy that I was learning along with
+
+00:01:01.600 --> 00:01:05.360
+you. I want to repeat this again. Maybe
+
+00:01:03.680 --> 00:01:08.400
+this is going to be the next another
+
+00:01:05.360 --> 00:01:10.080
+nextjs or uh but for the back end but I
+
+00:01:08.400 --> 00:01:12.240
+would love to explore with that. So with
+
+00:01:10.080 --> 00:01:14.799
+that let me take you onto the screen and
+
+00:01:12.240 --> 00:01:17.840
+together let's explore this versel but
+
+00:01:14.799 --> 00:01:20.720
+for back end known as motia. And here is
+
+00:01:17.840 --> 00:01:22.960
+the first website. And yes, of course,
+
+00:01:20.720 --> 00:01:26.000
+just like NexJS, they also give you this
+
+00:01:22.960 --> 00:01:28.000
+nice button at the very front. But what
+
+00:01:26.000 --> 00:01:30.159
+I want to do is I want to go in the docs
+
+00:01:28.000 --> 00:01:31.759
+and I want to see what it's like. So
+
+00:01:30.159 --> 00:01:33.280
+they have this getting started. Welcome
+
+00:01:31.759 --> 00:01:34.799
+to Moshia. All right, that's good.
+
+00:01:33.280 --> 00:01:37.200
+That's good. We have already explored
+
+00:01:34.799 --> 00:01:39.119
+this part most of it and yeah, this is
+
+00:01:37.200 --> 00:01:40.960
+my favorite part that I can just build
+
+00:01:39.119 --> 00:01:43.840
+application in whatever the language I
+
+00:01:40.960 --> 00:01:47.280
+want. But where I am interested in this
+
+00:01:43.840 --> 00:01:49.920
+particular video is quick start. So what
+
+00:01:47.280 --> 00:01:51.360
+it's like to create uh the very first
+
+00:01:49.920 --> 00:01:54.240
+application. By the way, you can copy
+
+00:01:51.360 --> 00:01:56.880
+the markdown and open this up into a lot
+
+00:01:54.240 --> 00:01:59.840
+of things. Even T3 chat I give you for
+
+00:01:56.880 --> 00:02:02.399
+that. Didn't even thought of that. So
+
+00:01:59.840 --> 00:02:04.000
+yeah, they're very generous in that. But
+
+00:02:02.399 --> 00:02:06.960
+what I want is I would love to copy
+
+00:02:04.000 --> 00:02:09.759
+this. I already have this VS Code setup
+
+00:02:06.960 --> 00:02:13.599
+in the Chai theme. and let's go ahead
+
+00:02:09.759 --> 00:02:15.599
+and see what it's like to have this one.
+
+00:02:13.599 --> 00:02:19.680
+All right, fingers all crossed and let's
+
+00:02:15.599 --> 00:02:22.640
+see. Okay, so Moshia, yes, I would like
+
+00:02:19.680 --> 00:02:25.520
+to proceed. Couple of questions.
+
+00:02:22.640 --> 00:02:27.760
+Hopefully, it will ask. No questions.
+
+00:02:25.520 --> 00:02:31.120
+Ask some questions.
+
+00:02:27.760 --> 00:02:33.440
+It doesn't do anything. All right, I'll
+
+00:02:31.120 --> 00:02:35.920
+wait for it. And I really like these
+
+00:02:33.440 --> 00:02:37.920
+kinds of raw videos where we together
+
+00:02:35.920 --> 00:02:40.400
+explore what's happening, what's not
+
+00:02:37.920 --> 00:02:43.599
+happening, how much time it's taking.
+
+00:02:40.400 --> 00:02:46.400
+All right. So,
+
+00:02:43.599 --> 00:02:48.480
+all right. So, a couple of questions.
+
+00:02:46.400 --> 00:02:51.440
+What template would you like to use? You
+
+00:02:48.480 --> 00:02:54.000
+can use your base as Python and base as
+
+00:02:51.440 --> 00:02:55.440
+TypeScript. I'm I'll prefer to go with
+
+00:02:54.000 --> 00:02:57.920
+the TypeScript. Maybe another video for
+
+00:02:55.440 --> 00:03:00.640
+Python, but this time we'll choose this
+
+00:02:57.920 --> 00:03:03.200
+one. And it says uh project name leave
+
+00:03:00.640 --> 00:03:07.840
+blank to use current folder. I'll not
+
+00:03:03.200 --> 00:03:11.680
+give them I'll just call this one as my
+
+00:03:07.840 --> 00:03:13.280
+motia app. I think that would be good.
+
+00:03:11.680 --> 00:03:15.040
+But if I just leave this I think this
+
+00:03:13.280 --> 00:03:16.720
+will populate my current folder. That
+
+00:03:15.040 --> 00:03:18.319
+would be better instead of creating a
+
+00:03:16.720 --> 00:03:19.760
+folder inside a folder. So I'll just
+
+00:03:18.319 --> 00:03:22.400
+leave this as a blank. I think that
+
+00:03:19.760 --> 00:03:25.519
+would be better. Proceed. Yes, of
+
+00:03:22.400 --> 00:03:27.519
+course. Please do that. All right. So we
+
+00:03:25.519 --> 00:03:30.400
+have a lot of configuration folder and
+
+00:03:27.519 --> 00:03:33.360
+even a cursor folder is being created. I
+
+00:03:30.400 --> 00:03:36.640
+like that they are going really forward.
+
+00:03:33.360 --> 00:03:37.920
+Uh yes please access whatever you need.
+
+00:03:36.640 --> 00:03:41.040
+All right so it says dependency
+
+00:03:37.920 --> 00:03:43.040
+installed flow default created steps. I
+
+00:03:41.040 --> 00:03:45.200
+would love to explore what do you all
+
+00:03:43.040 --> 00:03:47.599
+create and how it is going on. So let's
+
+00:03:45.200 --> 00:03:49.760
+go ahead and have a deep dive. All
+
+00:03:47.599 --> 00:03:51.440
+right. So cursor of course you have a
+
+00:03:49.760 --> 00:03:53.920
+lot of cursor API docs and stuff
+
+00:03:51.440 --> 00:03:55.519
+instruction good stuff. Node modules, no
+
+00:03:53.920 --> 00:03:57.519
+need to go inside that. First, let's see
+
+00:03:55.519 --> 00:03:59.680
+what's package.json. How does it look
+
+00:03:57.519 --> 00:04:01.599
+like? Name, current folder. Okay.
+
+00:03:59.680 --> 00:04:03.680
+Description, nothing. Script. We have
+
+00:04:01.599 --> 00:04:06.239
+post install script, which is motion
+
+00:04:03.680 --> 00:04:09.360
+install. We have dev, dev, debug,
+
+00:04:06.239 --> 00:04:13.040
+generate types, build, clean. Good
+
+00:04:09.360 --> 00:04:15.599
+stuff. And uh really interesting to see
+
+00:04:13.040 --> 00:04:17.759
+mermaid as well here. Then we have
+
+00:04:15.599 --> 00:04:19.600
+keyword dependency. Not much. Moshia and
+
+00:04:17.759 --> 00:04:21.519
+by default they go with the zod. So they
+
+00:04:19.600 --> 00:04:23.120
+do care about the type safety as well.
+
+00:04:21.519 --> 00:04:25.759
+Of course, it's TypeScript. So,
+
+00:04:23.120 --> 00:04:27.919
+TypeScript node, nothing too drastic.
+
+00:04:25.759 --> 00:04:31.840
+And it comes up with a default types of
+
+00:04:27.919 --> 00:04:33.520
+React, but not React. Interesting stuff.
+
+00:04:31.840 --> 00:04:36.080
+And we have TypeScript node. That's
+
+00:04:33.520 --> 00:04:39.280
+okay. Now, let's see what's there in the
+
+00:04:36.080 --> 00:04:42.000
+TS config standard.
+
+00:04:39.280 --> 00:04:43.440
+Uh types we do have. I don't think so we
+
+00:04:42.000 --> 00:04:45.680
+need to worry too much about this. This
+
+00:04:43.440 --> 00:04:46.960
+is okay part. And this is what happens
+
+00:04:45.680 --> 00:04:48.240
+when the first time you see the
+
+00:04:46.960 --> 00:04:50.800
+application. This is the learning
+
+00:04:48.240 --> 00:04:52.800
+journey. And I'm totally believing that
+
+00:04:50.800 --> 00:04:54.560
+you will also appreciate this. A lot of
+
+00:04:52.800 --> 00:04:55.840
+time tutorials are just hey just walk me
+
+00:04:54.560 --> 00:04:57.759
+through I'll give you the explanation.
+
+00:04:55.840 --> 00:04:59.199
+This is for the first time we both are
+
+00:04:57.759 --> 00:05:01.360
+learning together. I think this is the
+
+00:04:59.199 --> 00:05:03.759
+best part of it. Then we have this
+
+00:05:01.360 --> 00:05:05.919
+motion workbench.
+
+00:05:03.759 --> 00:05:09.600
+Okay. So there are steps which is
+
+00:05:05.919 --> 00:05:11.759
+noopstepts some x and y coordinate
+
+00:05:09.600 --> 00:05:13.680
+source handle position. Right. So I
+
+00:05:11.759 --> 00:05:15.759
+think they are plotting something. This
+
+00:05:13.680 --> 00:05:17.840
+is exactly for that. We will see that
+
+00:05:15.759 --> 00:05:19.440
+when we'll run the application because a
+
+00:05:17.840 --> 00:05:22.000
+lot of things gets clear when you run
+
+00:05:19.440 --> 00:05:24.080
+the application. And as they say that
+
+00:05:22.000 --> 00:05:26.000
+whole of their journey is on the steps
+
+00:05:24.080 --> 00:05:29.120
+in case you don't know that uh let me
+
+00:05:26.000 --> 00:05:30.720
+take you back onto this. If you read a
+
+00:05:29.120 --> 00:05:33.039
+little bit in their manifesto they
+
+00:05:30.720 --> 00:05:34.880
+actually mention this uh front here that
+
+00:05:33.039 --> 00:05:37.120
+we declare the step is our core
+
+00:05:34.880 --> 00:05:39.759
+primitive. So they actually ship the
+
+00:05:37.120 --> 00:05:44.160
+core primitive as steps. Okay. So these
+
+00:05:39.759 --> 00:05:47.280
+are the steps uh 0000 steps tsx. Then we
+
+00:05:44.160 --> 00:05:50.160
+have the step ts. I think this is for
+
+00:05:47.280 --> 00:05:52.000
+exactly the react and this is the one.
+
+00:05:50.160 --> 00:05:54.160
+So we don't have much of them. We have
+
+00:05:52.000 --> 00:05:56.240
+the step one as API step. Then we have
+
+00:05:54.160 --> 00:05:58.560
+test state step and the check state
+
+00:05:56.240 --> 00:06:00.960
+step. Okay let's explore each one of
+
+00:05:58.560 --> 00:06:03.039
+this file. Noop step don't hold any
+
+00:06:00.960 --> 00:06:06.560
+logic in the code. They are a way to
+
+00:06:03.039 --> 00:06:08.560
+create custom nodes for flows on the
+
+00:06:06.560 --> 00:06:11.919
+workbench and represent external states
+
+00:06:08.560 --> 00:06:14.160
+such as human in the loop. H nice. I
+
+00:06:11.919 --> 00:06:16.639
+would love to run this to see that what
+
+00:06:14.160 --> 00:06:18.639
+happens. Let's see. We forgot to check
+
+00:06:16.639 --> 00:06:21.680
+the docs. So, we need to check the docs
+
+00:06:18.639 --> 00:06:24.400
+again. And quick start. This is what
+
+00:06:21.680 --> 00:06:28.479
+I've done. And now it says npx motion
+
+00:06:24.400 --> 00:06:30.720
+dev. All right. Let's go ahead and uh
+
+00:06:28.479 --> 00:06:32.560
+use this npxia dev. So, this is what the
+
+00:06:30.720 --> 00:06:35.120
+documentation mentioned. I don't need to
+
+00:06:32.560 --> 00:06:36.800
+go in the folder. I was little smart
+
+00:06:35.120 --> 00:06:38.880
+there.
+
+00:06:36.800 --> 00:06:40.560
+Okay. And this is how we're going to see
+
+00:06:38.880 --> 00:06:43.440
+something. All right. Fair enough. Fair
+
+00:06:40.560 --> 00:06:46.400
+enough. Let's go up here. npx run motion
+
+00:06:43.440 --> 00:06:48.560
+dev. All the flows are being created and
+
+00:06:46.400 --> 00:06:50.160
+we should be technically listening on
+
+00:06:48.560 --> 00:06:54.919
+this port. It's been long that I have
+
+00:06:50.160 --> 00:06:54.919
+seen this port. Usually it's local host.
+
+00:06:55.280 --> 00:07:00.160
+Okay.
+
+00:06:57.039 --> 00:07:02.319
+Ooh, that's interesting one here. So we
+
+00:07:00.160 --> 00:07:05.759
+have the tracing. Ah, you need to see
+
+00:07:02.319 --> 00:07:07.360
+this. So there we go. So we have this
+
+00:07:05.759 --> 00:07:10.160
+whole thing. And by the way, some other
+
+00:07:07.360 --> 00:07:13.919
+stuff is running up. I'll close that. So
+
+00:07:10.160 --> 00:07:15.840
+we have tracing logs and the states
+
+00:07:13.919 --> 00:07:17.360
+and we have these endpoints being
+
+00:07:15.840 --> 00:07:21.759
+defined. We just have the default
+
+00:07:17.360 --> 00:07:24.720
+template as of now and warning light
+
+00:07:21.759 --> 00:07:28.400
+mode coming up. There we go. I'll not
+
+00:07:24.720 --> 00:07:30.160
+keep it. So if I start this flow
+
+00:07:28.400 --> 00:07:31.919
+uh let's click on the start flow. I
+
+00:07:30.160 --> 00:07:34.400
+think this is the API trigger which
+
+00:07:31.919 --> 00:07:37.039
+actually triggers this and this sets any
+
+00:07:34.400 --> 00:07:39.280
+changes up here. So I can see the whole
+
+00:07:37.039 --> 00:07:40.960
+flow of how the endpoints and how the
+
+00:07:39.280 --> 00:07:44.960
+steps are being created. Can I minimize
+
+00:07:40.960 --> 00:07:48.960
+this? Yeah, that's that's a lot.
+
+00:07:44.960 --> 00:07:50.479
+All right. I can change this change this
+
+00:07:48.960 --> 00:07:52.800
+and
+
+00:07:50.479 --> 00:07:55.280
+that's nice.
+
+00:07:52.800 --> 00:07:56.960
+Oh, nice zoom and stuff is also there.
+
+00:07:55.280 --> 00:08:00.560
+So probably I should be able to change
+
+00:07:56.960 --> 00:08:02.400
+them. All right, looks good. I need to
+
+00:08:00.560 --> 00:08:05.120
+read more on the docs that what's
+
+00:08:02.400 --> 00:08:08.160
+happening. Key test welcome to Moshia
+
+00:08:05.120 --> 00:08:09.840
+state change. Oh, so the every time I
+
+00:08:08.160 --> 00:08:13.599
+was clicking on it, it was actually
+
+00:08:09.840 --> 00:08:17.199
+looking on this one. H So let me go
+
+00:08:13.599 --> 00:08:21.280
+ahead. It it was logging all the time
+
+00:08:17.199 --> 00:08:23.360
+and stuff. If I click this again, yep,
+
+00:08:21.280 --> 00:08:26.639
+it's actually matches the state value.
+
+00:08:23.360 --> 00:08:28.479
+Key is test. Welcome to Moshia.
+
+00:08:26.639 --> 00:08:30.720
+Good stuff. Let's go ahead and explore
+
+00:08:28.479 --> 00:08:33.200
+how the documentation and steps looks
+
+00:08:30.720 --> 00:08:35.760
+like. I think the good point just a gut
+
+00:08:33.200 --> 00:08:38.320
+feeling is 01 step. All right. So it
+
+00:08:35.760 --> 00:08:40.000
+says API route config and the handlers
+
+00:08:38.320 --> 00:08:42.880
+these are imported from the motion
+
+00:08:40.000 --> 00:08:45.200
+itself and then we have API route config
+
+00:08:42.880 --> 00:08:48.240
+which where we have to config uh the
+
+00:08:45.200 --> 00:08:51.519
+type is API and the name is trigger.
+
+00:08:48.240 --> 00:08:54.720
+What more type do you have?
+
+00:08:51.519 --> 00:08:56.160
+It is just the type API as of now. At
+
+00:08:54.720 --> 00:08:57.760
+least the suggestions are saying one.
+
+00:08:56.160 --> 00:09:00.560
+The good thing is Typescript so I can
+
+00:08:57.760 --> 00:09:02.000
+rely a lot on the suggestion and just
+
+00:09:00.560 --> 00:09:04.000
+like you can see in here if I just
+
+00:09:02.000 --> 00:09:06.080
+remove this and hit this notice here all
+
+00:09:04.000 --> 00:09:08.880
+the suggestions are there. So I'm
+
+00:09:06.080 --> 00:09:10.320
+relying on that. So the name is API
+
+00:09:08.880 --> 00:09:13.760
+trigger. The description is default
+
+00:09:10.320 --> 00:09:16.959
+template API trigger. I think this is
+
+00:09:13.760 --> 00:09:19.120
+the one that is there.
+
+00:09:16.959 --> 00:09:22.640
+Let's see. And then we have the API
+
+00:09:19.120 --> 00:09:24.880
+step. This emits a test state. Can I
+
+00:09:22.640 --> 00:09:27.120
+emit something else? I would check that.
+
+00:09:24.880 --> 00:09:29.279
+Then the body is schema which says the
+
+00:09:27.120 --> 00:09:32.560
+message
+
+00:09:29.279 --> 00:09:35.040
+string expected request body for type
+
+00:09:32.560 --> 00:09:36.800
+checking. Good stuff. Let me check this.
+
+00:09:35.040 --> 00:09:38.800
+And this is how you learn. Then we have
+
+00:09:36.800 --> 00:09:40.640
+a handler which takes couple of
+
+00:09:38.800 --> 00:09:43.600
+parameter. The first one is request. And
+
+00:09:40.640 --> 00:09:46.480
+then we have logger emit and trace ID.
+
+00:09:43.600 --> 00:09:48.880
+And then we can use the logger to trace
+
+00:09:46.480 --> 00:09:50.800
+this step zero processing API and the
+
+00:09:48.880 --> 00:09:53.680
+body request. Did we saw something like
+
+00:09:50.800 --> 00:09:55.519
+that?
+
+00:09:53.680 --> 00:09:57.440
+Did we saw? So, yep, we have state
+
+00:09:55.519 --> 00:09:59.360
+change, the API trigger, step one,
+
+00:09:57.440 --> 00:10:01.839
+processing API. So, I think this is
+
+00:09:59.360 --> 00:10:03.519
+exactly coming up from here. And then we
+
+00:10:01.839 --> 00:10:05.680
+have the step. We don't have anything
+
+00:10:03.519 --> 00:10:08.480
+inside the body. This is exactly where
+
+00:10:05.680 --> 00:10:11.040
+it's coming up. And we also emit an
+
+00:10:08.480 --> 00:10:13.600
+event so that I guess another event can
+
+00:10:11.040 --> 00:10:16.079
+pick it up. So, emit events to the topic
+
+00:10:13.600 --> 00:10:19.519
+to process asynchronously. That's nice.
+
+00:10:16.079 --> 00:10:22.160
+So, topic is the test state and the data
+
+00:10:19.519 --> 00:10:24.160
+that you probably can pass on and then
+
+00:10:22.160 --> 00:10:25.839
+return back to the client. So whoever
+
+00:10:24.160 --> 00:10:28.320
+the client is requesting we can actually
+
+00:10:25.839 --> 00:10:30.800
+return them and let it go. And this is
+
+00:10:28.320 --> 00:10:34.640
+the part which probably goes to the next
+
+00:10:30.800 --> 00:10:36.880
+step. Event emit events to the topics to
+
+00:10:34.640 --> 00:10:40.720
+process a synchronously.
+
+00:10:36.880 --> 00:10:43.120
+Good. Let's go into the test state.
+
+00:10:40.720 --> 00:10:45.760
+This is the second one. All right. So
+
+00:10:43.120 --> 00:10:48.560
+this is a type event. This is event
+
+00:10:45.760 --> 00:10:50.560
+config. What was the previous one? The
+
+00:10:48.560 --> 00:10:52.399
+previous one was the API route config.
+
+00:10:50.560 --> 00:10:55.360
+And this is the event config. How many
+
+00:10:52.399 --> 00:10:57.279
+options we have here?
+
+00:10:55.360 --> 00:11:00.160
+Just one. So event config you have to
+
+00:10:57.279 --> 00:11:02.320
+mention it always as event. Then we have
+
+00:11:00.160 --> 00:11:04.560
+the name description. This step
+
+00:11:02.320 --> 00:11:06.079
+subscribes to the event test state to be
+
+00:11:04.560 --> 00:11:08.880
+processed as synchronously. So we have
+
+00:11:06.079 --> 00:11:11.279
+to subscribe to a test state. All right.
+
+00:11:08.880 --> 00:11:13.200
+So we are subscribing to an event test
+
+00:11:11.279 --> 00:11:15.839
+state which is coming up from the
+
+00:11:13.200 --> 00:11:17.440
+previous step or any step maybe because
+
+00:11:15.839 --> 00:11:18.800
+you are subscribed. So it doesn't need
+
+00:11:17.440 --> 00:11:21.200
+to come from the previous one. It can
+
+00:11:18.800 --> 00:11:24.240
+come from anyone. As long as this event
+
+00:11:21.200 --> 00:11:27.600
+is emitted, I'll start working. And this
+
+00:11:24.240 --> 00:11:29.920
+one also emits a check state change. So,
+
+00:11:27.600 --> 00:11:32.720
+anybody can actually subscribe just by
+
+00:11:29.920 --> 00:11:36.480
+writing this. But this needs to go into
+
+00:11:32.720 --> 00:11:38.959
+the event config uh configuration.
+
+00:11:36.480 --> 00:11:41.920
+Fairly understandable. And this is in
+
+00:11:38.959 --> 00:11:44.399
+reality how you understand a fresh new
+
+00:11:41.920 --> 00:11:46.160
+technology. I have never made this kind
+
+00:11:44.399 --> 00:11:48.240
+of videos, but this is how the struggle
+
+00:11:46.160 --> 00:11:49.839
+goes up. You go into the docs, you
+
+00:11:48.240 --> 00:11:51.839
+create the fresh project, you put up
+
+00:11:49.839 --> 00:11:54.000
+your theories, test them out, you fail
+
+00:11:51.839 --> 00:11:56.640
+with them, you work with them and this
+
+00:11:54.000 --> 00:11:58.880
+is how it works. This is obvious and
+
+00:11:56.640 --> 00:12:00.399
+this is the portion where your existing
+
+00:11:58.880 --> 00:12:02.800
+knowledge overlaps. So I have worked
+
+00:12:00.399 --> 00:12:04.560
+quite a lot with the zod. So those
+
+00:12:02.800 --> 00:12:06.320
+knowledge from react or nextjs this
+
+00:12:04.560 --> 00:12:08.480
+overlaps. So this makes life a little
+
+00:12:06.320 --> 00:12:09.760
+easier. But this is the first time that
+
+00:12:08.480 --> 00:12:12.800
+we are seeing all of this. So we have
+
+00:12:09.760 --> 00:12:14.959
+the flows now default. Do we have more
+
+00:12:12.800 --> 00:12:17.200
+of the flows? The flow this step belongs
+
+00:12:14.959 --> 00:12:19.360
+to V will be available in the workbench.
+
+00:12:17.200 --> 00:12:21.279
+Okay. And this is the handler. I guess
+
+00:12:19.360 --> 00:12:23.600
+handlers are handlers. This is where you
+
+00:12:21.279 --> 00:12:26.160
+write your business logic. Avoid using
+
+00:12:23.600 --> 00:12:28.720
+console log. Use logger instead. So they
+
+00:12:26.160 --> 00:12:30.639
+have their own logger. And this is where
+
+00:12:28.720 --> 00:12:32.399
+you mention and I think we also hit
+
+00:12:30.639 --> 00:12:35.120
+this. So this is the step two where we
+
+00:12:32.399 --> 00:12:36.959
+change the step pushing message content
+
+00:12:35.120 --> 00:12:38.800
+to the state. Right now we have don't
+
+00:12:36.959 --> 00:12:41.839
+have anything in the input but we could
+
+00:12:38.800 --> 00:12:44.079
+have something here. All right. So
+
+00:12:41.839 --> 00:12:46.160
+persist content on the state and then we
+
+00:12:44.079 --> 00:12:49.279
+are also emitting the event which is
+
+00:12:46.160 --> 00:12:51.760
+check state change and the data we are
+
+00:12:49.279 --> 00:12:54.480
+seeing key as test expected message. All
+
+00:12:51.760 --> 00:12:57.279
+right, fair enough. Let's go into the
+
+00:12:54.480 --> 00:12:59.600
+next one. And then we also see this here
+
+00:12:57.279 --> 00:13:01.519
+again the same event. We are checking
+
+00:12:59.600 --> 00:13:04.399
+the state change. Anything you can
+
+00:13:01.519 --> 00:13:07.360
+change. You subscribe for an event. You
+
+00:13:04.399 --> 00:13:11.200
+can also emit emit any event. You
+
+00:13:07.360 --> 00:13:13.360
+validate your input and then you can
+
+00:13:11.200 --> 00:13:16.000
+mark this into a flow so that it's
+
+00:13:13.360 --> 00:13:17.760
+available in this workbench.
+
+00:13:16.000 --> 00:13:19.360
+All right. in the default because there
+
+00:13:17.760 --> 00:13:22.240
+could be other. I just noticed there
+
+00:13:19.360 --> 00:13:24.320
+could be many workbenches up here. Good
+
+00:13:22.240 --> 00:13:28.000
+enough. And then we simply see the
+
+00:13:24.320 --> 00:13:29.680
+handler which check the uh check for the
+
+00:13:28.000 --> 00:13:31.680
+state change and then you write the
+
+00:13:29.680 --> 00:13:33.839
+logic here
+
+00:13:31.680 --> 00:13:36.160
+and there we have the values. We fetch
+
+00:13:33.839 --> 00:13:38.000
+the values if the value is not as
+
+00:13:36.160 --> 00:13:39.600
+expected.
+
+00:13:38.000 --> 00:13:42.399
+I guess this is the straightforward
+
+00:13:39.600 --> 00:13:44.399
+business logic. So what I've understood
+
+00:13:42.399 --> 00:13:46.240
+as a conclusion as of now there are
+
+00:13:44.399 --> 00:13:48.480
+couple of key interesting points and
+
+00:13:46.240 --> 00:13:50.639
+then I jump into the docs to validate my
+
+00:13:48.480 --> 00:13:52.240
+theory. So there are two major thing the
+
+00:13:50.639 --> 00:13:54.720
+first one is somebody is hitting the
+
+00:13:52.240 --> 00:13:56.800
+endpoint. So there is API route config
+
+00:13:54.720 --> 00:13:58.639
+and after that once we have hit the API
+
+00:13:56.800 --> 00:14:00.480
+endpoint what do we want to do comes
+
+00:13:58.639 --> 00:14:02.959
+under the event config or event
+
+00:14:00.480 --> 00:14:05.360
+configuration. You can actually
+
+00:14:02.959 --> 00:14:08.000
+subscribe to any event and also as well
+
+00:14:05.360 --> 00:14:11.279
+as you can emit any event. So rest of
+
+00:14:08.000 --> 00:14:13.360
+things is abstracted from us. They say
+
+00:14:11.279 --> 00:14:15.600
+rightly about the framework. This is a
+
+00:14:13.360 --> 00:14:19.760
+framework. So we can subscribe to any
+
+00:14:15.600 --> 00:14:22.160
+event and can emit any event and any of
+
+00:14:19.760 --> 00:14:25.760
+the step can actually subscribe and
+
+00:14:22.160 --> 00:14:27.839
+event emit the events there and then all
+
+00:14:25.760 --> 00:14:29.600
+of them also gets a handler that what
+
+00:14:27.839 --> 00:14:32.399
+you really want to do. So you simply do
+
+00:14:29.600 --> 00:14:35.040
+export con handler and handlers then
+
+00:14:32.399 --> 00:14:36.480
+handle this part here. So set change
+
+00:14:35.040 --> 00:14:38.560
+this is what we are taking and this is
+
+00:14:36.480 --> 00:14:40.880
+where we write the business logic. All
+
+00:14:38.560 --> 00:14:42.720
+right fair enough. Let's also dive deep
+
+00:14:40.880 --> 00:14:45.279
+into this one that how this is this is
+
+00:14:42.720 --> 00:14:47.920
+basically just the react nodes. So what
+
+00:14:45.279 --> 00:14:49.600
+you see here this is known as the nodes.
+
+00:14:47.920 --> 00:14:52.720
+So I think these are being created. This
+
+00:14:49.600 --> 00:14:55.040
+is a standard react stuff. Uh don't need
+
+00:14:52.720 --> 00:14:57.440
+to dive much into this and this is where
+
+00:14:55.040 --> 00:15:00.160
+I configure my application to call this
+
+00:14:57.440 --> 00:15:02.560
+one as /defaults. The flows is going to
+
+00:15:00.160 --> 00:15:05.279
+be default. Uh good enough. Fair enough
+
+00:15:02.560 --> 00:15:08.240
+stuff in here. All right, let's check
+
+00:15:05.279 --> 00:15:10.560
+couple of more things. Now this one
+
+00:15:08.240 --> 00:15:12.480
+makes sense that we have the steps where
+
+00:15:10.560 --> 00:15:14.639
+on X and Y location they will be there
+
+00:15:12.480 --> 00:15:17.360
+target all of that. So how they are
+
+00:15:14.639 --> 00:15:19.680
+working on this configuration file is
+
+00:15:17.360 --> 00:15:23.360
+making sense. Now let's jump into the
+
+00:15:19.680 --> 00:15:25.120
+docs part how that is there. All right.
+
+00:15:23.360 --> 00:15:28.000
+So this is the project structure. We can
+
+00:15:25.120 --> 00:15:30.480
+go ahead and check this.
+
+00:15:28.000 --> 00:15:32.240
+And this is the project structure. say
+
+00:15:30.480 --> 00:15:34.000
+so they say the basic project structure
+
+00:15:32.240 --> 00:15:36.399
+will be like your project then you have
+
+00:15:34.000 --> 00:15:38.399
+the steps it could be API gateway and
+
+00:15:36.399 --> 00:15:39.680
+then the processor self notification
+
+00:15:38.399 --> 00:15:42.800
+anything like that and we have the
+
+00:15:39.680 --> 00:15:44.720
+custom UI steps as well fairly fairly
+
+00:15:42.800 --> 00:15:47.120
+simple project structure I was expecting
+
+00:15:44.720 --> 00:15:50.800
+much more file than this but turns out
+
+00:15:47.120 --> 00:15:54.240
+it's actually not that hard and we have
+
+00:15:50.800 --> 00:15:56.560
+automatic step discovery I like that I
+
+00:15:54.240 --> 00:15:58.800
+don't have to do this stuff discovery
+
+00:15:56.560 --> 00:16:00.800
+rules I really really need to go and
+
+00:15:58.800 --> 00:16:02.480
+dive deep into This also they have the
+
+00:16:00.800 --> 00:16:04.160
+naming con file naming convention as
+
+00:16:02.480 --> 00:16:06.959
+well. I need to study that so that I can
+
+00:16:04.160 --> 00:16:09.120
+give you a gist of it, summary of it. Uh
+
+00:16:06.959 --> 00:16:11.279
+I love doing that things because I go
+
+00:16:09.120 --> 00:16:13.519
+dive into the documentation take
+
+00:16:11.279 --> 00:16:15.759
+everything that they have to offer and
+
+00:16:13.519 --> 00:16:17.680
+then bring out a short guide for you to
+
+00:16:15.759 --> 00:16:20.000
+actually understand and get into this.
+
+00:16:17.680 --> 00:16:23.040
+So I think hope you understood the
+
+00:16:20.000 --> 00:16:25.839
+process of how we do the things and yes
+
+00:16:23.040 --> 00:16:27.920
+each of the new framework that I dive in
+
+00:16:25.839 --> 00:16:30.000
+this is what it takes. I create the
+
+00:16:27.920 --> 00:16:32.240
+project then dive into it explore the
+
+00:16:30.000 --> 00:16:34.079
+files put up my theories match this
+
+00:16:32.240 --> 00:16:36.320
+theory with the docs and now what I'll
+
+00:16:34.079 --> 00:16:38.160
+do is for the next 2 hours 3 hours
+
+00:16:36.320 --> 00:16:40.959
+whatever it takes I'll be diving into
+
+00:16:38.160 --> 00:16:42.639
+their docs yeah line by line and we'll
+
+00:16:40.959 --> 00:16:44.320
+extract the information we'll make my
+
+00:16:42.639 --> 00:16:46.240
+notes and then probably in the next
+
+00:16:44.320 --> 00:16:48.320
+video I'll come back and we'll explain
+
+00:16:46.240 --> 00:16:50.399
+to you and we'll build together a sample
+
+00:16:48.320 --> 00:16:51.920
+project it will be basic but it will
+
+00:16:50.399 --> 00:16:54.079
+actually
+
+00:16:51.920 --> 00:16:56.000
+kind of validate our theories whatever
+
+00:16:54.079 --> 00:16:58.320
+we have made so far because these
+
+00:16:56.000 --> 00:17:00.720
+frameworks are knew nobody is an expert
+
+00:16:58.320 --> 00:17:02.880
+here except the creators. So we need to
+
+00:17:00.720 --> 00:17:05.120
+put out our theory join their discord
+
+00:17:02.880 --> 00:17:07.199
+and go and work with them that how it is
+
+00:17:05.120 --> 00:17:09.039
+going like so technically you are for
+
+00:17:07.199 --> 00:17:10.880
+the first time seeing what it takes
+
+00:17:09.039 --> 00:17:13.039
+behind the scene to explore a framework
+
+00:17:10.880 --> 00:17:15.439
+and learn with that. I hope you're
+
+00:17:13.039 --> 00:17:17.360
+enjoying these raw format because I
+
+00:17:15.439 --> 00:17:19.760
+think nobody does that on the YouTube
+
+00:17:17.360 --> 00:17:21.280
+itself. And for this I highly highly
+
+00:17:19.760 --> 00:17:23.039
+would appreciate if you will drop some
+
+00:17:21.280 --> 00:17:25.199
+comment that hey we love this behind the
+
+00:17:23.039 --> 00:17:27.439
+scene and in the next video together we
+
+00:17:25.199 --> 00:17:29.600
+are going to explore a simple to-do kind
+
+00:17:27.439 --> 00:17:31.679
+of application with this that what
+
+00:17:29.600 --> 00:17:33.919
+possibly can be a really bare minimum
+
+00:17:31.679 --> 00:17:35.600
+application with Moshia. That is it for
+
+00:17:33.919 --> 00:17:38.480
+this video. Let's catch up in the next
+
+00:17:35.600 --> 00:17:38.480
+one.
+
+
