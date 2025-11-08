@@ -1,0 +1,68 @@
+services:
+  # Frontend Service
+  - type: web
+    name: seanai-frontend
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    plan: free  # Change to 'starter' for always-on ($7/month)
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: /api
+    healthCheckPath: /
+    
+  # Backend Service
+  - type: web
+    name: seanai-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free  # Change to 'starter' for always-on ($7/month)
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        sync: false  # Set manually in Render dashboard
+      - key: JWT_SECRET
+        generateValue: true  # Auto-generate secure secret
+      - key: OPENAI_API_KEY
+        sync: false  # Set manually
+      - key: PINECONE_API_KEY
+        sync: false  # Set manually
+      - key: AWS_REGION
+        sync: false  # Set manually
+      - key: AWS_ACCESS_KEY_ID
+        sync: false  # Set manually
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false  # Set manually
+      - key: AWS_BUCKET_NAME
+        sync: false  # Set manually
+      - key: PYTHON_SERVICE_URL
+        fromService:
+          name: seanai-python
+          type: web
+          property: host
+    healthCheckPath: /api/healthz
+    
+  # Python Service
+  - type: web
+    name: seanai-python
+    env: docker
+    dockerfilePath: ./videoTranscript/Dockerfile
+    dockerContext: ./videoTranscript
+    plan: free  # Change to 'starter' for always-on ($7/month)
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: AWS_REGION
+        sync: false  # Set manually
+      - key: AWS_ACCESS_KEY_ID
+        sync: false  # Set manually
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false  # Set manually
+      - key: AWS_BUCKET_NAME
+        sync: false  # Set manually
+    healthCheckPath: /
+
