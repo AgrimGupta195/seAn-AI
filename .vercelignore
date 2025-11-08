@@ -1,0 +1,27 @@
+# Ignore files for Vercel deployment
+node_modules/
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+.vscode/
+.idea/
+dist/
+build/
+coverage/
+.nyc_output/
+docker-compose.yml
+Dockerfile
+*.md
+!README.md
+.git/
+.gitignore
+backend/uploads/
+backend/node_modules/
+frontend/node_modules/
+videoTranscript/
+__pycache__/
+*.pyc
+.python-version
+

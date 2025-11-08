@@ -7,10 +7,23 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+/backend/node_modules
+/frontend/node_modules
+
+# Build outputs
 dist
 dist-ssr
-*.local
+/frontend/dist
+/build
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+/backend/.env
+/frontend/.env
 
 # Editor directories and files
 .vscode/*
@@ -22,9 +35,21 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-.env
-env.template
-/backend/.env
-/frontend/.env
-/backend/node_modules
-/frontend/node_modules
+
+# Temporary files
+*.local
+/backend/uploads/*
+!/backend/uploads/.gitkeep
+/videoTranscript/tmp_uploads/*
+/videoTranscript/extracted_audio/*
+/videoTranscript/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Vercel
+.vercel
+
+# Docker
+.dockerignore

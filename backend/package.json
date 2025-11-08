@@ -25,6 +25,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "ffmpeg-extract-audio": "^1.0.2",
+    "form-data": "^4.0.0",
     "fs": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
     "mammoth": "^1.11.0",
@@ -34,10 +35,10 @@
     "openai": "^6.5.0",
     "pdf-parse": "^2.4.4",
     "pdf-parse-debugging-disabled": "^1.1.1",
+    "sean-ai": "file:..",
     "youtube-transcript": "^1.2.1",
     "youtube-transcript-api": "^3.0.6",
     "yt-transcript": "^0.0.2",
-    "zod": "^3.25.76",
-    "form-data": "^4.0.0"
+    "zod": "^3.25.76"
   }
 }

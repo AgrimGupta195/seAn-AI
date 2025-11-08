@@ -142,7 +142,11 @@ export const uploadVideosAndTranscribe = (req, res) => {
         const audioPath = path.join(os.tmpdir(), `audio_${Date.now()}.mp3`);
         
         const audioResponse = await fetch(audioS3Url);
-        const audioBuffer = await audioResponse.buffer();
+        if (!audioResponse.ok) {
+          throw new Error(`Failed to download audio from S3: ${audioResponse.statusText}`);
+        }
+        const audioArrayBuffer = await audioResponse.arrayBuffer();
+        const audioBuffer = Buffer.from(audioArrayBuffer);
         fs.writeFileSync(audioPath, audioBuffer);
         
         const transcription = await transcribeAudio(audioPath);

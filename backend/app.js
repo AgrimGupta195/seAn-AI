@@ -22,14 +22,19 @@ const envOrigins = (process.env.ALLOWED_ORIGINS || process.env.CLIENT_URL || "")
   .map(origin => origin.trim())
   .filter(Boolean);
 
-const vercelOrigin = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : null;
+// Add Vercel deployment URLs
+const vercelUrl = process.env.VERCEL_URL;
+const vercelBranchUrl = process.env.VERCEL_BRANCH_URL;
 
-const allowedOrigins = [...defaultOrigins, ...envOrigins];
-if (vercelOrigin) {
-  allowedOrigins.push(vercelOrigin);
+const vercelOrigins = [];
+if (vercelUrl) {
+  vercelOrigins.push(`https://${vercelUrl}`);
 }
+if (vercelBranchUrl) {
+  vercelOrigins.push(`https://${vercelBranchUrl}`);
+}
+
+const allowedOrigins = [...defaultOrigins, ...envOrigins, ...vercelOrigins];
 
 app.use(
   cors({
@@ -39,6 +44,7 @@ app.use(
 );
 
 app.use(express.json({ limit: "500mb" }));
+app.use(express.urlencoded({ limit: "500mb", extended: true }));
 app.use(cookieParser());
 
 app.use("/api/uploadFile", uploadRouter);

@@ -1,34 +1,32 @@
+# Production Docker Compose Configuration
+# Usage: docker compose -f docker-compose.prod.yml up -d
+
 services:
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: seanai-backend
+    container_name: seanai-backend-prod
     environment:
       NODE_ENV: production
       PORT: 5000
       UPLOAD_DIR: /tmp
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
-      # MongoDB Connection - Set in .env file
+      FRONTEND_URL: ${FRONTEND_URL}
       MONGO_URI: ${MONGO_URI}
-      # JWT Secret Key - Set in .env file
       JWT_SECRET: ${JWT_SECRET}
-      # OpenAI API Key - Set in .env file
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      # Pinecone API Key - Set in .env file
       PINECONE_API_KEY: ${PINECONE_API_KEY}
-      # AWS S3 Configuration - Set in .env file
       AWS_REGION: ${AWS_REGION}
       AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      # Python service URL - uses internal Docker network
       PYTHON_SERVICE_URL: http://python:8000
     ports:
-      - "${BACKEND_PORT:-5000}:5000"
+      - "5000:5000"
     depends_on:
-      - python
-    restart: unless-stopped
+      python:
+        condition: service_healthy
+    restart: always
     networks:
       - seanai-network
     healthcheck:
@@ -36,44 +34,41 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 40s
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        # Frontend API Base URL - Use /api for relative URLs (Nginx will proxy to backend)
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
-    container_name: seanai-frontend
-    environment:
-      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
-    volumes:
-      # Mount nginx config to ensure API proxying works
-      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    container_name: seanai-frontend-prod
     ports:
-      - "${FRONTEND_PORT:-5173}:80"
+      - "80:80"
+      - "443:443"
     depends_on:
       backend:
         condition: service_healthy
-    restart: unless-stopped
+    restart: always
     networks:
       - seanai-network
+    volumes:
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
 
   python:
     build:
       context: ./videoTranscript
       dockerfile: Dockerfile
-    container_name: seanai-python
+    container_name: seanai-python-prod
     environment:
       PORT: 8000
-      # AWS S3 Configuration - Set in .env file (needed for audio extraction)
       AWS_REGION: ${AWS_REGION}
       AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     ports:
-      - "${PYTHON_PORT:-8000}:8000"
-    restart: unless-stopped
+      - "8000:8000"
+    restart: always
     networks:
       - seanai-network
     healthcheck:
@@ -81,7 +76,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 40s
 
 networks:
   seanai-network:
     driver: bridge
+
