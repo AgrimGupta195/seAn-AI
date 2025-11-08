@@ -34,7 +34,13 @@ if (vercelBranchUrl) {
   vercelOrigins.push(`https://${vercelBranchUrl}`);
 }
 
-const allowedOrigins = [...defaultOrigins, ...envOrigins, ...vercelOrigins];
+// Add Render deployment URLs
+const renderOrigins = [
+  "https://seanai-frontend-ivl4.onrender.com",
+  "https://seanai-backend-skk0.onrender.com"
+];
+
+const allowedOrigins = [...defaultOrigins, ...envOrigins, ...vercelOrigins, ...renderOrigins];
 
 app.use(
   cors({
