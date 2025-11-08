@@ -158,7 +158,7 @@ Since services are separate, you have two options:
 1. Copy `frontend/nginx.render.conf` to `frontend/nginx.conf`
 2. Update the `$backend_url` variable with your actual backend URL:
    ```nginx
-   set $backend_url "https://seanai-backend.onrender.com";
+   set $backend_url "https://seanai-backend-skk0.onrender.com";
    ```
 
 **Option B: Update existing nginx.conf**
@@ -166,12 +166,12 @@ Since services are separate, you have two options:
 Replace `proxy_pass http://backend:5000;` with your backend URL:
 ```nginx
 location /api {
-    proxy_pass https://seanai-backend.onrender.com;  # Your backend URL
+    proxy_pass https://seanai-backend-skk0.onrender.com;  # Your backend URL
     # ... rest of config
 }
 ```
 
-**Note:** Replace `seanai-backend.onrender.com` with your actual backend URL from Render dashboard.
+**Note:** Your actual backend URL is: `https://seanai-backend-skk0.onrender.com`
 
 ---
 
@@ -226,7 +226,7 @@ location /api {
    PYTHON_SERVICE_URL=https://seanai-python.onrender.com
    ```
 5. Click **"Create Web Service"**
-6. Copy the service URL (e.g., `https://seanai-backend.onrender.com`)
+6. Copy the service URL (e.g., `https://seanai-backend-skk0.onrender.com`)
 
 ### Step 3: Deploy Frontend Service
 
@@ -240,11 +240,11 @@ location /api {
    - **Docker Context**: `frontend`
 4. Add Environment Variables:
    ```
-   VITE_API_BASE_URL=https://seanai-backend.onrender.com/api
+   VITE_API_BASE_URL=https://seanai-backend-skk0.onrender.com/api
    ```
 5. Update `frontend/nginx.conf` to proxy to your backend URL
 6. Click **"Create Web Service"**
-7. Copy the service URL (e.g., `https://seanai-frontend.onrender.com`)
+7. Copy the service URL (e.g., `https://seanai-frontend-ivl4.onrender.com`)
 
 ---
 
@@ -256,7 +256,7 @@ Since services are on different URLs, update `frontend/nginx.conf`:
 
 ```nginx
 location /api {
-    proxy_pass https://seanai-backend.onrender.com;
+    proxy_pass https://seanai-backend-skk0.onrender.com;
     # ... rest of config
 }
 ```
@@ -269,8 +269,8 @@ Update `backend/app.js` to include Render URLs:
 
 ```javascript
 const renderOrigins = [
-  "https://seanai-frontend.onrender.com",
-  "https://seanai-backend.onrender.com"
+  "https://seanai-frontend-ivl4.onrender.com",
+  "https://seanai-backend-skk0.onrender.com"
 ];
 
 const allowedOrigins = [...defaultOrigins, ...envOrigins, ...renderOrigins];

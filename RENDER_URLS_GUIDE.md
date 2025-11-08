@@ -34,17 +34,18 @@ After deployment, you'll have:
 
 ### Frontend URL
 ```
-https://seanai-frontend.onrender.com
+https://seanai-frontend-ivl4.onrender.com
 ```
 - This is your main application URL
 - Users will access your app here
 
-### Backend URL
+### Backend URL (API Endpoint)
 ```
-https://seanai-backend.onrender.com
+https://seanai-backend-skk0.onrender.com
 ```
 - This is your API URL
 - Used by frontend to make API calls
+- API Base: `https://seanai-backend-skk0.onrender.com/api`
 
 ### Python Service URL
 ```
@@ -60,9 +61,9 @@ https://seanai-python.onrender.com
 1. Go to your `frontend/nginx.render.conf`
 2. Update the backend URL:
    ```nginx
-   set $backend_url "https://seanai-backend.onrender.com";
+   set $backend_url "https://seanai-backend-skk0.onrender.com";
    ```
-3. Replace with your actual backend URL
+3. Your actual backend URL is: `https://seanai-backend-skk0.onrender.com`
 4. Copy `nginx.render.conf` to `nginx.conf`:
    ```bash
    cp frontend/nginx.render.conf frontend/nginx.conf
@@ -103,13 +104,13 @@ If you get CORS errors:
 
 ### Test Frontend
 ```bash
-curl https://seanai-frontend.onrender.com
+curl https://seanai-frontend-ivl4.onrender.com
 ```
 Should return HTML
 
 ### Test Backend Health
 ```bash
-curl https://seanai-backend.onrender.com/api/healthz
+curl https://seanai-backend-skk0.onrender.com/api/healthz
 ```
 Should return: `{"status":"ok"}`
 

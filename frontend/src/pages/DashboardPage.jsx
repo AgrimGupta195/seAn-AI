@@ -16,7 +16,12 @@ export default function DashboardPage() {
   };
 
   const apiKey = user?.apiKey || 'YOUR_API_KEY';
-  const baseUrl = 'http://localhost:5000/api';
+  // Use environment variable or default to production API endpoint
+  const baseUrl = import.meta.env.VITE_API_BASE_URL 
+    ? (import.meta.env.VITE_API_BASE_URL.startsWith('http') 
+        ? import.meta.env.VITE_API_BASE_URL 
+        : `${window.location.origin}${import.meta.env.VITE_API_BASE_URL}`)
+    : 'https://seanai-backend-skk0.onrender.com/api';
 
   const codeExamples = {
     javascript: `// Using Fetch API
