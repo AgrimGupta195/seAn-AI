@@ -190,86 +190,86 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col bg-transparent pt-20 text-slate-200">
+    <div className="w-full flex flex-col bg-transparent text-slate-200">
       {(successMessage || errorMessage) && (
-        <div className="fixed top-24 right-4 z-50 max-w-md">
+        <div className="fixed top-24 right-2 sm:right-4 z-50 max-w-xs sm:max-w-md">
           {successMessage && (
-            <div className="bg-emerald-600/90 border border-emerald-500/80 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 mb-2 animate-slide-in">
-              <CheckCircle size={24} />
-              <p className="flex-1">{successMessage}</p>
-              <button onClick={() => setSuccessMessage('')} className="hover:text-green-200">
-                <X size={20} />
+            <div className="bg-emerald-600/90 border border-emerald-500/80 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-2xl flex items-center gap-2 sm:gap-3 mb-2 animate-slide-in">
+              <CheckCircle size={20} className="flex-shrink-0" />
+              <p className="flex-1 text-sm sm:text-base">{successMessage}</p>
+              <button onClick={() => setSuccessMessage('')} className="hover:text-green-200 flex-shrink-0">
+                <X size={18} />
               </button>
             </div>
           )}
           {errorMessage && (
-            <div className="bg-red-600/90 border border-red-500/80 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
-              <AlertCircle size={24} />
-              <p className="flex-1">{errorMessage}</p>
-              <button onClick={() => setErrorMessage('')} className="hover:text-red-200">
-                <X size={20} />
+            <div className="bg-red-600/90 border border-red-500/80 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-2xl flex items-center gap-2 sm:gap-3 animate-slide-in">
+              <AlertCircle size={20} className="flex-shrink-0" />
+              <p className="flex-1 text-sm sm:text-base">{errorMessage}</p>
+              <button onClick={() => setErrorMessage('')} className="hover:text-red-200 flex-shrink-0">
+                <X size={18} />
               </button>
             </div>
           )}
         </div>
       )}
 
-      <div className="flex flex-col items-center py-8 px-4">
-        <h1 className="text-4xl sm:text-5xl font-bold bg-linear-to-r from-indigo-400 via-blue-400 to-purple-500 bg-clip-text text-transparent mb-3">
+      <div className="flex flex-col items-center py-4 sm:py-6 px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 via-blue-400 to-purple-500 bg-clip-text text-transparent mb-2 sm:mb-3 text-center">
           Upload Content
         </h1>
-        <p className="text-lg sm:text-xl text-slate-400">Choose your upload method</p>
+        <p className="text-base sm:text-lg md:text-xl text-slate-400 text-center">Choose your upload method</p>
       </div>
 
-      <div className="flex border-b border-slate-800 px-4 overflow-x-auto">
+      <div className="flex border-b border-slate-800 w-full px-4 sm:px-6 lg:px-8">
         <button
           onClick={() => setActiveTab('youtube')}
-          className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all whitespace-nowrap ${
+          className={`flex-1 min-w-0 flex items-center justify-center gap-1 sm:gap-2 py-3 sm:py-4 px-2 font-semibold transition-all ${
             activeTab === 'youtube'
               ? 'border-b-2 border-indigo-500 text-indigo-400 -mb-px'
               : 'text-slate-500 hover:text-slate-300'
           }`}
         >
-          <Link2 size={20} />
-          <span className="hidden sm:inline">YouTube</span>
+          <Link2 size={18} className="sm:w-5 sm:h-5 flex-shrink-0" />
+          <span className="text-xs sm:text-sm truncate">YouTube</span>
         </button>
         <button
           onClick={() => setActiveTab('files')}
-          className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all whitespace-nowrap ${
+          className={`flex-1 min-w-0 flex items-center justify-center gap-1 sm:gap-2 py-3 sm:py-4 px-2 font-semibold transition-all ${
             activeTab === 'files'
               ? 'border-b-2 border-indigo-500 text-indigo-400 -mb-px'
               : 'text-slate-500 hover:text-slate-300'
           }`}
         >
-          <FileText size={20} />
-          <span className="hidden sm:inline">Documents</span>
+          <FileText size={18} className="sm:w-5 sm:h-5 flex-shrink-0" />
+          <span className="text-xs sm:text-sm truncate">Documents</span>
         </button>
         <button
           onClick={() => setActiveTab('videos')}
-          className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all whitespace-nowrap ${
+          className={`flex-1 min-w-0 flex items-center justify-center gap-1 sm:gap-2 py-3 sm:py-4 px-2 font-semibold transition-all ${
             activeTab === 'videos'
               ? 'border-b-2 border-indigo-500 text-indigo-400 -mb-px'
               : 'text-slate-500 hover:text-slate-300'
           }`}
         >
-          <Video size={20} />
-          <span className="hidden sm:inline">Videos</span>
+          <Video size={18} className="sm:w-5 sm:h-5 flex-shrink-0" />
+          <span className="text-xs sm:text-sm truncate">Videos</span>
         </button>
         <button
           onClick={() => setActiveTab('subtitles')}
-          className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all whitespace-nowrap ${
+          className={`flex-1 min-w-0 flex items-center justify-center gap-1 sm:gap-2 py-3 sm:py-4 px-2 font-semibold transition-all ${
             activeTab === 'subtitles'
               ? 'border-b-2 border-indigo-500 text-indigo-400 -mb-px'
               : 'text-slate-500 hover:text-slate-300'
           }`}
         >
-          <FileText size={20} />
-          <span className="hidden sm:inline">Subtitles</span>
+          <FileText size={18} className="sm:w-5 sm:h-5 flex-shrink-0" />
+          <span className="text-xs sm:text-sm truncate">Subtitles</span>
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-        <div className="max-w-4xl mx-auto">
+      <div className="w-full p-4 sm:p-6 lg:px-8 pb-8 sm:pb-12">
+        <div className="max-w-4xl mx-auto w-full">
           {activeTab === 'youtube' && (
             <div className="space-y-4">
               <label className="text-sm font-semibold text-gray-400 mb-2 block">
@@ -306,7 +306,7 @@ export default function UploadPage() {
               <button
                 onClick={handleYoutubeSubmit}
                 disabled={youtubeUrls.every(url => !url.trim())}
-                className="w-full bg-linear-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
                 Process YouTube Videos
               </button>
@@ -315,7 +315,7 @@ export default function UploadPage() {
 
           {activeTab === 'files' && (
             <div className="space-y-4">
-              <div className="border-2 border-dashed border-gray-700 rounded-2xl p-12 text-center hover:border-blue-500 transition-all cursor-pointer bg-linear-to-br from-gray-900/50 to-gray-800/50">
+              <div className="border-2 border-dashed border-gray-700 rounded-2xl p-6 sm:p-8 md:p-12 text-center hover:border-blue-500 transition-all cursor-pointer bg-gradient-to-br from-gray-900/50 to-gray-800/50">
                 <input
                   type="file"
                   id="file-upload"
@@ -325,13 +325,13 @@ export default function UploadPage() {
                   className="hidden"
                 />
                 <label htmlFor="file-upload" className="cursor-pointer">
-                  <div className="bg-linear-to-r from-blue-500 to-purple-600 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Upload size={40} className="text-white" />
+                  <div className="bg-gradient-to-r from-blue-500 to-purple-600 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                    <Upload size={32} className="sm:w-10 sm:h-10 text-white" />
                   </div>
-                  <p className="text-2xl font-semibold text-white mb-2">
+                  <p className="text-xl sm:text-2xl font-semibold text-white mb-2">
                     Click to upload documents
                   </p>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-xs sm:text-sm text-gray-400">
                     Supports: VTT, SRT, TXT, DOC, DOCX, PDF
                   </p>
                 </label>
@@ -364,7 +364,7 @@ export default function UploadPage() {
                   <button
                     onClick={handleFileSubmit}
                     disabled={loadingFiles}
-                    className="w-full bg-linear-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 sm:py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                   >
                     {loadingFiles ? (
                       <span className="flex items-center justify-center gap-2">
@@ -382,7 +382,7 @@ export default function UploadPage() {
 
           {activeTab === 'videos' && (
             <div className="space-y-4">
-              <div className="border-2 border-dashed border-gray-700 rounded-2xl p-12 text-center hover:border-blue-500 transition-all cursor-pointer bg-linear-to-br from-gray-900/50 to-gray-800/50">
+              <div className="border-2 border-dashed border-gray-700 rounded-2xl p-6 sm:p-8 md:p-12 text-center hover:border-blue-500 transition-all cursor-pointer bg-gradient-to-br from-gray-900/50 to-gray-800/50">
                 <input
                   type="file"
                   id="video-upload"
@@ -392,13 +392,13 @@ export default function UploadPage() {
                   className="hidden"
                 />
                 <label htmlFor="video-upload" className="cursor-pointer">
-                  <div className="bg-linear-to-r from-purple-500 to-pink-600 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Video size={40} className="text-white" />
+                  <div className="bg-gradient-to-r from-purple-500 to-pink-600 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                    <Video size={32} className="sm:w-10 sm:h-10 text-white" />
                   </div>
-                  <p className="text-2xl font-semibold text-white mb-2">
+                  <p className="text-xl sm:text-2xl font-semibold text-white mb-2">
                     Click to upload videos
                   </p>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-xs sm:text-sm text-gray-400">
                     Supports: MP4, AVI, MOV, MKV, and more
                   </p>
                 </label>
@@ -431,7 +431,7 @@ export default function UploadPage() {
                   <button
                     disabled={loadingVideo}
                     onClick={handleVideoSubmit}
-                    className="w-full bg-linear-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 sm:py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                   >
                     {loadingVideo ? (
                       <span className="flex items-center justify-center gap-2">
@@ -511,7 +511,7 @@ export default function UploadPage() {
                 <button
                   onClick={handleSubtitleSubmit}
                   disabled={subtitleFiles.some(item => !item.file || !item.videoLink.trim()) || loadingSubtitles}
-                  className="w-full bg-linear-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 sm:py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                 >
                   {loadingSubtitles ? (
                     <span className="flex items-center justify-center gap-2">
