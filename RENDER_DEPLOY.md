@@ -26,6 +26,13 @@ Render supports Docker Compose, but you need to deploy each service separately.
 
 Deploy each service (Frontend, Backend, Python) as separate web services.
 
+> ⚠️ **Recommended Startup Order (avoids frontend errors):**
+> 1. Deploy the Python helper (`seanai-python`) and wait for its root URL (`/`) to return 200.
+> 2. Deploy the backend (`seanai-backend`). Confirm `/api/healthz` is healthy before moving on.
+> 3. Deploy the frontend (`seanai-frontend`) only after the backend is live, and redeploy it whenever the backend URL or API key changes.
+>
+> This mirrors the Docker workflow where backend services come online before the React UI, preventing Render from serving a frontend that points to an unavailable API.
+
 ---
 
 ## 📦 Option 1: Deploy with Docker Compose (Simpler)
