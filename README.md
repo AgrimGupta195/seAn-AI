@@ -125,6 +125,7 @@ Use the Dashboard page to copy JS, Python, cURL, or React client snippets that a
 - **Object storage** – AWS S3 bucket stores user uploads; metadata includes `s3Url` references for each chunk.
 - **Vector DB** – Pinecone index `seanai` organizes embeddings per user namespace to keep tenant data isolated.
 - **OpenAI models** – Currently using `text-embedding-3-large` for vectors and `gpt-4o-mini` for grounded responses. Update `.env` if you need different models or provider keys.
+- **Vercel deploys** – Use `vercel.json` + `api/index.js` to host the frontend and Express API together; follow `VERCEL_DEPLOY.md` for step-by-step instructions (Python transcript service still deploys separately).
 
 ---
 
